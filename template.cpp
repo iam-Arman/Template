@@ -45,12 +45,23 @@ const double eps=1e-9;
 
 # define optimise   ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); cin.clear(); 
 # define fraction(a) cout.unsetf(ios::floatfield); cout.precision(a); cout.setf(ios::fixed,ios::floatfield);
-inline void file() {  freopen("input.txt", "r", stdin); freopen("output.txt", "w", stdout);   }
 
 typedef vector<int>::iterator vit;
 typedef vector<ll>::iterator vlt;
 typedef set<int>::iterator sit;
 typedef map<int,int>::iterator mit;
+
+
+inline void file() {
+ 
+#ifndef ONLINE_JUDGE
+ 
+freopen("input.txt", "r", stdin);
+freopen("output.txt", "w", stdout);
+ 
+#endif // ONLINE_JUDGE
+
+}
 
 
 //----------------------------------------------------------------------------------------------------------------------------------|
@@ -242,7 +253,7 @@ bool is_mountain(vector<int> &vec)
 
 void solve()
 {
-
+ 
 
 }
 int main()
