@@ -33,7 +33,7 @@ typedef vector<pair<long long,long long > > vpl;
 # define ff first
 # define ss second
 # define mp make_pair
-# define sz(x) (int)sz.size()
+# define sz(x) (int)x.size()
 
 ll mod=1000000000+7;
 const double PI= acos(-1);
