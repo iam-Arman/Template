@@ -1,5 +1,5 @@
                                           //   Bismillahir Rahmanir Rahim      //
-                                         //      SHAHRIAR MAHMUD ARMAN        //
+                                         //     After hardship comes ease     //
                                         //         AUTHOR : iamarman         //
 
 
@@ -63,7 +63,6 @@ freopen("output.txt", "w", stdout);
 
 }
 
-
 //----------------------------------------------------------------------------------------------------------------------------------|
 
 
@@ -73,7 +72,6 @@ freopen("output.txt", "w", stdout);
 
 //-----------------------------------------------------------------------------------------------------------------------------------|
 
- 
 template < typename F, typename S >
 ostream& operator << ( ostream& os, const pair< F, S > & p ) {
             return os << "(" << p.first << ", " << p.second << ")";
@@ -136,7 +134,6 @@ void faltu( T arg, const hello &... rest) {
             cerr << arg << ' ';
                 faltu(rest...);
 }
-
 
 //--------------------------------------------------------------------------------------------------------------------------------------|
 
@@ -228,47 +225,21 @@ bool sort_by_sec(const pair<int,int> &a,const pair<int,int> &b)
                                                     ///  CODE STARTS FROM HERE    ///
 
 
-bool is_mountain(vector<int> &vec)
-{
-   bool ok=false;
-   for(int i=0;i<vec.size()-1;i++)
-   {
-    if(!ok)
-    {
-      if(vec[i]>vec[i+1]) 
-     {
-        ok=true;
-      }
-    }
-    if(ok)
-    {
-       if(vec[i]<vec[i+1])
-       {
-        return false;
-       }
-    }
-   }
-   return true;
-}
 
 void solve()
 {
+  
  
-
 }
+
 int main()
 {
     optimise;
     file();
-   test{
-
+    test
+    {
     solve();
-
- }
-
-
-    
-
+    }
+  
 }
-
 
