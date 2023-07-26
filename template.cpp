@@ -15,7 +15,8 @@ typedef vector<long long> vll;
 typedef vector<pair<int,int> > vpi;
 typedef vector<pair<long long,long long > > vpl;
 
-# define ll long long                                                                                                              
+# define ll long long
+# define ull unsigned long long                                                                                                           
 # define test int test; cin>>test; while(test--)
 # define rep(i,a,b) for(int i=a;i<b;i++)
 # define rep_n(i,a,b) for(int i=a;i<=b;i++)
@@ -43,7 +44,7 @@ const double eps=1e-9;
 # define sqr(a) ((a)*(a))
 # define lcm(a,b) (a*b)/__gcd(a,b)
 
-# define optimise   ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); cin.clear(); 
+# define optimise   ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
 # define fraction(a) cout.unsetf(ios::floatfield); cout.precision(a); cout.setf(ios::fixed,ios::floatfield);
 
 typedef vector<int>::iterator vit;
@@ -99,93 +100,24 @@ template <typename T, typename ... hello>  void faltu( T arg, const hello &... r
 
 
 
-ll bigmod(ll base,ll power)
-{
-  ll res=1;
-  ll p=base%mod;
-  while(power>0)
-  {
-    if(power%2==1)
-    {
-      res=((res%mod)*(p%mod))%mod;
-      //res*=p;
-    }
-    power/=2;
-    p=((p%mod)*(p%mod))%mod;
-  }
-  return res;
-}
+ll bigmod(ll base,ll power){ ll res=1; ll p=base%mod; while(power>0) { if(power%2==1) {  res=((res%mod)*(p%mod))%mod; }  power/=2; p=((p%mod)*(p%mod))%mod; } return res; }
+
+ll poww(ll a,ll b) { ll ans=1; if(!b) return 1; while(b>1) {  if(b&1) { ans=ans*a%mod; } a=a*a%mod; b/=2; }return a*ans%mod; }
+
+int gcd(ll a,ll b) { ll rem; while(b%a!=0)  {  rem=b%a;  b=a;  a=rem; } return a; }
 
 
-long long LOG(long long base, long long n)
-{  
-  long long cnt=0;
-while(n>0)
-{
- n=n/base;
- cnt++;
-}
-return (cnt-1);
-}
-
-
-ll poww(ll a,ll b)
-{
-  ll ans=1;
-  if(!b) return 1;
-  while(b>1)
-  {
-    if(b&1)
-    {
-      ans=ans*a%mod;
-    }
-    a=a*a%mod;
-    b/=2;
-  }
-  return a*ans%mod;
-}
-
-int gcd(ll a,ll b)
-{
-  ll rem;
-  while(b%a!=0)
-  {
-    rem=b%a;
-    b=a;
-    a=rem;
-  }
-  return a;
-}
-
-
-int GCD(ll a,ll b)
-{
-  if(a==b) return a;
-  else if(b==0) return a;
-  else return GCD(b,a%b);
-}
-
-bool sort_by_sec(const pair<int,int> &a,const pair<int,int> &b)
-{
-    if(a.first==b.first)
-    { 
-      if(a.second>b.second) return true;
-      else return false;
-    }
-    return true;
-}
-
+int dx[]={-1, 1 , 0 , 0 , -1 ,-1, 1, 1};
+int dy[]={ 0, 0 ,-1 , 1 , -1 , 1,-1, 1};
 
 
                                                     ///  CODE STARTS FROM HERE    ///
 
-
-
 void solve()
 {
-    
  
 }
+
 
 int main()
 {
@@ -197,4 +129,3 @@ int main()
     }
   
 }
-
