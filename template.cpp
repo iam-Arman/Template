@@ -4,7 +4,11 @@
 
 
 #include<bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+
 using namespace std;
+using namespace __gnu_pbds;
 
                                              ////       TEMPLATE       ////
 
@@ -46,6 +50,8 @@ const double eps=1e-9;
 
 # define optimise   ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
 # define fraction(a) cout.unsetf(ios::floatfield); cout.precision(a); cout.setf(ios::fixed,ios::floatfield);
+# define ordered_set tree<int, null_type,less<int>, rb_tree_tag,tree_order_statistics_node_update>
+
 
 typedef vector<int>::iterator vit;
 typedef vector<ll>::iterator vlt;
@@ -115,7 +121,9 @@ int dy[]={ 0, 0 ,-1 , 1 , -1 , 1,-1, 1};
 
 void solve()
 {
- 
+   
+
+   
 }
 
 
