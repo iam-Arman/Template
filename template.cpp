@@ -145,6 +145,6 @@ int main()
       solve();
     }
 
-    cerr << "Run Time : " <<((double)(clock() - q) / CLOCKS_PER_SEC)<<el;
+    cerr << "Time Taken : " <<((double)(clock() - q) / CLOCKS_PER_SEC)<<el;
   
 }
