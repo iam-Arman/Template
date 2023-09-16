@@ -52,6 +52,12 @@ const double eps=1e-9;
 # define fraction(a) cout.unsetf(ios::floatfield); cout.precision(a); cout.setf(ios::fixed,ios::floatfield);
 # define ordered_set tree<int, null_type,less<int>, rb_tree_tag,tree_order_statistics_node_update>
 
+// find_by_order() - Returns an iterator to the k-th largest element (counting from zero)
+// order_of_key()  - The number of items in a set that are strictly smaller than our item 
+// greater instead of less for descending order
+// less_equal works as ordered multiset
+// we can use pair<int,int> instead of int for pair of orderd set
+
 
 typedef vector<int>::iterator vit;
 typedef vector<ll>::iterator vlt;
@@ -121,9 +127,9 @@ int dy[]={ 0, 0 ,-1 , 1 , -1 , 1,-1, 1};
 
 void solve()
 {
-   
+  
 
-   
+  
 }
 
 
@@ -131,9 +137,14 @@ int main()
 {
     optimise;
     file();
+
+    clock_t q= clock();
+
     test
     {
       solve();
     }
+
+    cerr << "Run Time : " <<((double)(clock() - q) / CLOCKS_PER_SEC)<<el;
   
 }
