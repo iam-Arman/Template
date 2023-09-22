@@ -4,8 +4,9 @@
 
 
 #include<bits/stdc++.h>
-#include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
+#include <ext/pb_ds/assoc_container.hpp>
+
 
 using namespace std;
 using namespace __gnu_pbds;
@@ -14,33 +15,32 @@ using namespace __gnu_pbds;
 
 //---------------------------------------------------------------------------------------------------------------------------------|
 
-typedef vector<int> vii;
-typedef vector<long long> vll;
-typedef vector<pair<int,int> > vpi;
-typedef vector<pair<long long,long long > > vpl;
+typedef     vector<int> vii;
+typedef     vector<long long> vll;
+typedef     vector<pair<int,int> > vpi;
+typedef     vector<pair<long long,long long > > vpl;
 
-# define ll long long
-# define ull unsigned long long                                                                                                           
-# define test int test; cin>>test; while(test--)
-# define rep(i,a,b) for(int i=a;i<b;i++)
-# define rep_n(i,a,b) for(int i=a;i<=b;i++)
-# define rep_rev(i,a,b) for(int i=b;a>=1;i--)
-# define pb push_back
-# define el '\n'
-# define R0 return 0
-# define all(v) v.begin(),v.end()
-# define srt(vvv) sort(vvv.begin(),vvv.end())
-# define sp " "
-# define vii vector<int>
-# define vll vector<long long>
-# define yess cout<<"YES"<<el
-# define noo cout<<"NO"<<el
-# define ff first
-# define ss second
-# define mp make_pair
-# define sz(x) (int)x.size()
+# define    el '\n'
+# define    ff first
+# define    ss second
+# define    R0 return 0
+# define    ll long long
+# define    ull unsigned long long                                                                                                           
+# define    rep(i,a,b) for(int i=a;i<b;i++)
+# define    rep_n(i,a,b) for(int i=a;i<=b;i++)
+# define    test int test; cin>>test; while(test--)
+# define    rep_rev(i,a,b) for(int i=b;a>=1;i--)
+# define    all(v) v.begin(),v.end()
+# define    yess cout<<"YES"<<el
+# define    sz(x) (int)x.size()
+# define    noo cout<<"NO"<<el
+# define    pb push_back
+# define    mp make_pair
+# define    sp " "
+
 
 ll mod=1000000000+7;
+ll INF=LLONG_MAX;
 const double PI= acos(-1);
 const double eps=1e-9;
 
@@ -48,9 +48,9 @@ const double eps=1e-9;
 # define sqr(a) ((a)*(a))
 # define lcm(a,b) (a*b)/__gcd(a,b)
 
-# define optimise {  ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);  }
+# define optimise   { ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); }
 # define fraction(a) cout.unsetf(ios::floatfield); cout.precision(a); cout.setf(ios::fixed,ios::floatfield);
-# define ordered_set tree<int, null_type,less<int>, rb_tree_tag,tree_order_statistics_node_update>
+# define ordered_set tree<ll, null_type,less_equal<ll>, rb_tree_tag,tree_order_statistics_node_update>
 
 // find_by_order() - Returns an iterator to the k-th largest element (counting from zero)
 // order_of_key()  - The number of items in a set that are strictly smaller than our item 
@@ -114,6 +114,8 @@ template <typename T, typename ... hello>  void faltu( T arg, const hello &... r
 
 ll bigmod(ll base,ll power){ ll res=1; ll p=base%mod; while(power>0) { if(power%2==1) {  res=((res%mod)*(p%mod))%mod; }  power/=2; p=((p%mod)*(p%mod))%mod; } return res; }
 
+ll inversemod(ll base) { return bigmod(base,mod-2); }
+
 ll poww(ll a,ll b) { ll ans=1; if(!b) return 1; while(b>1) {  if(b&1) { ans=ans*a%mod; } a=a*a%mod; b/=2; }return a*ans%mod; }
 
 int gcd(ll a,ll b) { ll rem; while(b%a!=0)  {  rem=b%a;  b=a;  a=rem; } return a; }
@@ -122,16 +124,20 @@ int gcd(ll a,ll b) { ll rem; while(b%a!=0)  {  rem=b%a;  b=a;  a=rem; } return a
 int dx[]={-1, 1 , 0 , 0 , -1 ,-1, 1, 1};
 int dy[]={ 0, 0 ,-1 , 1 , -1 , 1,-1, 1};
 
+// up = { -1,0 } , down = { 1,0 } , right = { 0,1 } , left = { 0,-1 }
+// up-right = { -1,1 } , up-left = { -1,-1 } , down-right = { 1,1 } , down-left = { 1,-1 }
+
+
+
 
                                                     ///  CODE STARTS FROM HERE    ///
 
+
+
 void solve()
 {
-  
 
-  
 }
-
 
 int main()
 {
@@ -139,12 +145,11 @@ int main()
     file();
 
     clock_t q= clock();
-
     test
-    {
+    { 
       solve();
     }
 
-    cerr << "Time Taken : " <<((double)(clock() - q) / CLOCKS_PER_SEC)<<el;
+    cerr << "Run Time : " <<((double)(clock() - q) / CLOCKS_PER_SEC)<<el;
   
 }
