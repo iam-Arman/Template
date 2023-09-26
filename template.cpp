@@ -57,6 +57,7 @@ const double eps=1e-9;
 // greater instead of less for descending order
 // less_equal works as ordered multiset
 // we can use pair<int,int> instead of int for pair of orderd set
+// for multiset st.lower_bound(x) works as upper bound and st.upper_bound(x) works as lower bound
 
 
 typedef vector<int>::iterator vit;
@@ -133,9 +134,10 @@ int dy[]={ 0, 0 ,-1 , 1 , -1 , 1,-1, 1};
                                                     ///  CODE STARTS FROM HERE    ///
 
 
-
+      
 void solve()
 {
+ 
 
 }
 
@@ -143,13 +145,14 @@ int main()
 {
     optimise;
     file();
-
+ 
     clock_t q= clock();
+
     test
     { 
       solve();
     }
-
+ 
     cerr << "Run Time : " <<((double)(clock() - q) / CLOCKS_PER_SEC)<<el;
   
 }
