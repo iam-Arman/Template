@@ -1,6 +1,6 @@
-                                          //   Bismillahir Rahmanir Rahim      //
-                                         //     After hardship comes ease     //
-                                        //         AUTHOR : iamarman         //
+                                                  //   Bismillahir Rahmanir Rahim      //
+                                                 //     After hardship comes ease     //
+                                                //         AUTHOR : iamarman         //
 
 // pragmas
 #pragma GCC optimize("Ofast")
@@ -17,7 +17,7 @@
 using namespace std;
 using namespace __gnu_pbds;
 
-                                             ////       TEMPLATE       ////
+                                                    ////       TEMPLATE       ////
 
 //---------------------------------------------------------------------------------------------------------------------------------|
 
@@ -75,7 +75,7 @@ typedef set<int>::iterator sit;
 typedef map<int,int>::iterator mit;
 
 
-//                                       -- Custom hash for unordered map and unordered set --
+//                                           -- Custom hash for unordered map and unordered set --
 
 template <typename KeyType>  // use as unordered_map<int, int, custom_hash<int>> mp;  / unordered_map<pair<int,string>, int, custom_hash<pair<int,string>>> mp;
 struct custom_hash {         // use as unordered_set<int, custom_hash<int>> s;
@@ -97,6 +97,7 @@ struct custom_hash {         // use as unordered_set<int, custom_hash<int>> s;
         static const uint64_t FIXED_RANDOM = std::chrono::steady_clock::now().time_since_epoch().count();
         return splitmix64(std::hash<std::string>{}(key) + FIXED_RANDOM);
     }
+
    
    //  Specialization for std::pair
     template <typename T1, typename T2>
@@ -112,6 +113,35 @@ struct custom_hash {         // use as unordered_set<int, custom_hash<int>> s;
         static_assert(std::is_arithmetic<T>::value, "Unsupported key type");
         static const uint64_t FIXED_RANDOM = std::chrono::steady_clock::now().time_since_epoch().count();
         return splitmix64(static_cast<uint64_t>(key) + FIXED_RANDOM);
+    }
+  // // Specialization for std::set keys
+    template <typename T>
+    size_t operator()(const std::set<T>& key) const {
+        size_t hash = 0;
+        for (const T& element : key) {
+            hash ^= operator()(element);
+        }
+        return hash;
+    }
+
+   // Specialization for std::vector keys
+    template <typename T>
+    size_t operator()(const std::vector<T>& key) const {
+        size_t hash = 0;
+        for (const T& element : key) {
+            hash ^= operator()(element);
+        }
+        return hash;
+    }
+
+    // Specialization for std::map keys
+    template <typename K, typename V>
+    size_t operator()(const std::map<K, V>& key) const {
+        size_t hash = 0;
+        for (const auto& pair : key) {
+            hash ^= operator()(pair.first) ^ operator()(pair.second); 
+        }
+        return hash;
     }
 
    
@@ -134,10 +164,10 @@ freopen("output.txt", "w", stdout);
 
 
 
-                                                   // DEBUGGER //
+                                                               // DEBUGGER //
 
 
-//-----------------------------------------------------------------------------------------------------------------------------------|
+//----------------------------------------------------------------------------------------------------------------------------------|
 
 template < typename F, typename S > ostream& operator << ( ostream& os, const pair< F, S > & p ) { return os << "(" << p.first << ", " << p.second << ")"; }
  
@@ -149,20 +179,20 @@ template < typename T > ostream &operator << ( ostream & os, const multiset< T >
  
 template < typename F, typename S > ostream &operator << ( ostream & os, const map< F, S > &v ) { os << "["; for(auto it = v.begin(); it != v.end(); ++it) { if( it != v.begin() ) os << ", "; os << it -> first << " = " << it -> second ; } return os << "]";  }
  
-#define dbg(args...) do {cerr << #args << " : "; faltu(args); } while(0)
+#define dbg(args...) do {cerr << #args << " : "; iamarman(args); } while(0)
  
-void faltu () { cerr << endl; }
+void iamarman () { cerr << endl; }
  
-template <typename T> void faltu( T a[], int n ) {   for(int i = 0; i < n; ++i) cerr << a[i] << ' '; cerr << endl;  }
+template <typename T> void iamarman( T a[], int n ) {   for(int i = 0; i < n; ++i) cerr << a[i] << ' '; cerr << endl;  }
  
-template <typename T, typename ... hello>  void faltu( T arg, const hello &... rest) {   cerr << arg << ' ';  faltu(rest...);  }
+template <typename T, typename ... hello>  void iamarman( T arg, const hello &... rest) {   cerr << arg << ' ';  iamarman(rest...);  }
 
 //--------------------------------------------------------------------------------------------------------------------------------------|
 
 
 
-
-                                                    /////    FUNCTIONS     /////
+  
+                                                           /////    FUNCTIONS     /////
 
 
 
@@ -184,13 +214,17 @@ int dy[]={ 0, 0 ,-1 , 1 , -1 , 1,-1, 1};
 
 
 
-                                                    ///  CODE STARTS FROM HERE    ///
+                                                   ///  ____________CODE STARTS FROM HERE____________    ///
+
+
+
 
 
 void solve()
 {
+    
 
-
+    
 }
 
 int main()
@@ -199,7 +233,7 @@ int main()
     file();
  
     clock_t q= clock();
-    test
+   //test
     { 
 
       solve();
