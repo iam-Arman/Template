@@ -46,7 +46,7 @@ typedef     vector<pair<long long,long long > > vpl;
 # define    mp make_pair
 # define    sp " "
 
-
+constexpr ll bigprime=1999999817;
 constexpr ll mod=1000000000+7;
 constexpr ll INF=LLONG_MAX;
 constexpr double PI= acos(-1);
@@ -122,9 +122,12 @@ int dy[]={ 0, 0 ,-1 , 1 , -1 , 1,-1, 1};
                                                    ///  ____________CODE STARTS FROM HERE____________    ///
 
 
+    
 void solve()
 {
-    
+   
+
+
 }
 int main()
 {
