@@ -46,7 +46,7 @@ typedef     vector<pair<long long,long long > > vpl;
 # define    mp make_pair
 # define    sp " "
 
-constexpr ll bigprime=1999999817;
+
 constexpr ll mod=1000000000+7;
 constexpr ll INF=LLONG_MAX;
 constexpr double PI= acos(-1);
@@ -56,7 +56,7 @@ constexpr double eps=1e-9;
 # define sqr(a) ((a)*(a))
 # define lcm(a,b) (a*b)/__gcd(a,b)
 
-# define optimise   { ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); }
+# define optimise   { ios_base::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL); }
 # define fraction(a) cout.unsetf(ios::floatfield); cout.precision(a); cout.setf(ios::fixed,ios::floatfield);
 # define ordered_set tree<ll, null_type,less_equal<ll>, rb_tree_tag,tree_order_statistics_node_update>
 
@@ -109,7 +109,9 @@ ll poww(ull a,ull b) { ull ans=1; if(!b) return 1; while(b>1) {  if(b&1) { ans=a
 
 int gcd(ll a,ll b) { ll rem; while(b%a!=0)  {  rem=b%a;  b=a;  a=rem; } return a; }
 
+mt19937 rng(chrono::high_resolution_clock::now().time_since_epoch().count());
 
+ 
 int dx[]={-1, 1 , 0 , 0 , -1 ,-1, 1, 1};
 int dy[]={ 0, 0 ,-1 , 1 , -1 , 1,-1, 1};
 
@@ -122,24 +124,26 @@ int dy[]={ 0, 0 ,-1 , 1 , -1 , 1,-1, 1};
                                                    ///  ____________CODE STARTS FROM HERE____________    ///
 
 
-    
+
 void solve()
-{
+{   
    
-
-
+    
 }
 int main()
 {
     optimise;
     file();
 
-    clock_t q= clock();
+    clock_t start= clock();
 
-    test
+    int t;
+    cin>>t;
+    for(int i=1;i<=t;i++)
     {
         solve();
+       
     }
-    cerr << "Run Time : " <<((double)(clock() - q) / CLOCKS_PER_SEC)<<el;
+    cerr << "Run Time : " <<((double)(clock() - start) / CLOCKS_PER_SEC)<<el;
   
 }
