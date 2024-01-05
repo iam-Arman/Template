@@ -12,7 +12,6 @@
 #include <ext/pb_ds/tree_policy.hpp>
 #include <ext/pb_ds/assoc_container.hpp>
 
-
 using namespace std;
 using namespace __gnu_pbds;
 
@@ -20,32 +19,22 @@ using namespace __gnu_pbds;
 
 //---------------------------------------------------------------------------------------------------------------------------------|
 
-typedef     vector<int> vii;
-typedef     vector<long long> vll;
-typedef     vector<pair<int,int> > vpi;
-typedef     vector<pair<long long,long long > > vpl;
 
 # define    el '\n'
+# define    sp " "
 # define    ff first
 # define    ss second
-# define    R0 return 0
 # define    ll long long
-# define    noo1 cout<<-1<<el;  
-# define    ull unsigned long long                                                                                                         
-# define    rep(i,a,b) for(int i=a;i<b;i++)
-# define    rep_n(i,a,b) for(int i=a;i<=b;i++)
-# define    test int test; cin>>test; while(test--)
-# define    rep_rev(i,a,b) for(int i=b;a>=1;i--)
-# define    allr(v) v.rbegin(),v.rend()
-# define    all(v) v.begin(),v.end()
-# define    yess cout<<"YES"<<el
-# define    siz(x) (int)x.size()
-# define    noo cout<<"NO"<<el
-# define     yess1 cout<<1<<el
 # define    pb push_back
 # define    mp make_pair
-# define    sp " "
-
+# define    yess1 cout<<1<<el                                                                                    
+# define    yess cout<<"YES"<<el
+# define    siz(x) (int)x.size()
+# define    ull unsigned long long    
+# define    all(v) v.begin(),v.end()
+# define    allr(v) v.rbegin(),v.rend()
+# define    torad(x) ((x) * ((2*acos(0))/180.0))
+# define    todeg(x) ((x) * (180.0/(2*acos(0))))
 
 constexpr ll mod=1000000000+7;
 constexpr ll INF=LLONG_MAX;
@@ -73,9 +62,7 @@ freopen("input.txt", "r", stdin);
 freopen("output.txt", "w", stdout);
 #endif // ONLINE_JUDGE
 }
-
 //----------------------------------------------------------------------------------------------------------------------------------|
-
 
 
                                                                // DEBUGGER //
@@ -109,6 +96,12 @@ ll poww(ull a,ull b) { ull ans=1; if(!b) return 1; while(b>1) {  if(b&1) { ans=a
 
 int gcd(ll a,ll b) { ll rem; while(b%a!=0)  {  rem=b%a;  b=a;  a=rem; } return a; }
 
+ll sqrtt(ll a){ long long x = sqrt(a) + 2; while (x * x > a) x--; return x;}
+
+ll sqrt(ll n) {ll low=0,high=1e10; while(high-low>1){ ll mid=low+(high-low)/2; if(mid*mid<=n) low=mid; else high=mid; }return low; }
+
+long double sqrtd(long double n){ long double low=0,high=n,mid; for(int i=0;i<100;i++) { mid=(low+high)/2; if(mid*mid<=n) low=mid; else high=mid;} return low;}
+
 mt19937 rng(chrono::high_resolution_clock::now().time_since_epoch().count());
 
  
@@ -124,19 +117,18 @@ int dy[]={ 0, 0 ,-1 , 1 , -1 , 1,-1, 1};
                                                    ///  ____________CODE STARTS FROM HERE____________    ///
 
 
-
 void solve()
-{   
-   
-    
+{  
+
+
+
 }
 int main()
-{
+{ 
     optimise;
     file();
 
     clock_t start= clock();
-
     int t;
     cin>>t;
     for(int i=1;i<=t;i++)
