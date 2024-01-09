@@ -104,6 +104,8 @@ long double sqrtd(long double n){ long double low=0,high=n,mid; for(int i=0;i<10
 
 mt19937 rng(chrono::high_resolution_clock::now().time_since_epoch().count());
 
+inline ll getrandom(ll a,ll b) { return uniform_int_distribution<ll>(a,b)(rng); }
+
  
 int dx[]={-1, 1 , 0 , 0 , -1 ,-1, 1, 1};
 int dy[]={ 0, 0 ,-1 , 1 , -1 , 1,-1, 1};
