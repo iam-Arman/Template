@@ -27,7 +27,8 @@ using namespace __gnu_pbds;
 # define    ll long long
 # define    pb push_back
 # define    mp make_pair
-# define    yess1 cout<<1<<el                                                                                    
+# define    yess1 cout<<1<<el 
+# define    noo cout<<"NO"<<el
 # define    yess cout<<"YES"<<el
 # define    siz(x) (int)x.size()
 # define    ull unsigned long long    
