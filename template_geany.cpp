@@ -400,6 +400,36 @@ debug() {
         echo "Scroll up ⬆️  to see the red error report and line number."
     fi
 }
+
+
+precompile() {
+    echo "\033[1;33m⏳ Precompiling bits/stdc++.h (This takes ~5 seconds)...\033[0m"
+    
+    # 1. Create a dedicated folder for the header
+    mkdir -p std_lib
+    
+    # 2. Compile the header with your specific flags (-O2, -std=c++17)
+    # The output file MUST be named 'stdc++.h.gch' for GCC to find it
+    g++ -x c++-header -O2 -std=c++17 -DLOCAL /usr/local/include/bits/stdc++.h -o std_lib/stdc++.h.gch
+    
+    if [ $? -eq 0 ]; then
+        echo "\033[1;32m✅ Done! Compilation will now be instant.\033[0m"
+    else
+        echo "\033[1;31m❌ Failed. Make sure you have bits/stdc++.h installed.\033[0m"
+    fi
+}
+
+clean() {
+    echo "\033[1;34m🧹 Cleaning up garbage files...\033[0m"
+    # Removes executable 'sol', 'gen', 'brute', and temp txt files
+    rm -f sol gen brute *.o *.out my_output.txt output.txt input.txt expected.txt stdc++.h.gch
+    
+    # Optional: Removes compiled header if you want to reset 'precompile'
+    # rm -rf std_lib 
+    
+    echo "\033[1;32m✨ Clean.\033[0m"
+}
+
     
 
 
