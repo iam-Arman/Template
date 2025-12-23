@@ -183,88 +183,88 @@ int main()
 
 // TIMEFMT=$'\nReal:\t%E\nUser:\t%U\nSys:\t%S'
 
-// match() {
-//     # 1. Compile (NO -DLOCAL, so output is clean for checking)
-//     g++ -o sol -Wall -Wextra -std=c++17 -O2 "$1.cpp"
+match() {
+    # 1. Compile (NO -DLOCAL, so output is clean for checking)
+    g++ -o sol -Wall -Wextra -std=c++17 -O2 "$1.cpp"
 
-//     if [ $? -eq 0 ]; then
-//         echo "--- Running $1 vs expected.txt ---"
+    if [ $? -eq 0 ]; then
+        echo "--- Running $1 vs expected.txt ---"
 
-//         # 2. Run code and measure time
-//         # We capture the start/end time to warn if it's too slow (Time Limit Exceeded)
-//         start=$(date +%s.%N)
-//         ./sol < input.txt > my_output.txt
-//         end=$(date +%s.%N)
-//         runtime=$( echo "$end - $start" | bc -l )
+        # 2. Run code and measure time
+        # We capture the start/end time to warn if it's too slow (Time Limit Exceeded)
+        start=$(date +%s.%N)
+        ./sol < input.txt > my_output.txt
+        end=$(date +%s.%N)
+        runtime=$( echo "$end - $start" | bc -l )
 
-//         # 3. Smart Python Checker
-//         if [ -f "expected.txt" ]; then
-//             python3 -c "
-// import sys
+        # 3. Smart Python Checker
+        if [ -f "expected.txt" ]; then
+            python3 -c "
+import sys
 
-// def is_float(s):
-//     try:
-//         float(s)
-//         return True
-//     except ValueError:
-//         return False
+def is_float(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
-// try:
-//     with open('my_output.txt') as f1, open('expected.txt') as f2:
-//         out = [line.strip() for line in f1 if line.strip()]
-//         exp = [line.strip() for line in f2 if line.strip()]
-// except:
-//     print('Error reading files.')
-//     sys.exit(1)
-// passed_count = 0
-// total_cases = max(len(out), len(exp))
+try:
+    with open('my_output.txt') as f1, open('expected.txt') as f2:
+        out = [line.strip() for line in f1 if line.strip()]
+        exp = [line.strip() for line in f2 if line.strip()]
+except:
+    print('Error reading files.')
+    sys.exit(1)
+passed_count = 0
+total_cases = max(len(out), len(exp))
 
-// for i in range(total_cases):
-//     val_out = out[i] if i < len(out) else '(missing)'
-//     val_exp = exp[i] if i < len(exp) else '(missing)'
+for i in range(total_cases):
+    val_out = out[i] if i < len(out) else '(missing)'
+    val_exp = exp[i] if i < len(exp) else '(missing)'
 
-//     match = False
+    match = False
 
-//     # Check 1: Exact String Match
-//     if val_out == val_exp:
-//         match = True
-//     # Check 2: Floating Point Match (Precision 1e-6)
-//     elif is_float(val_out) and is_float(val_exp):
-//         if abs(float(val_out) - float(val_exp)) < 1e-6:
-//             match = True
+    # Check 1: Exact String Match
+    if val_out == val_exp:
+        match = True
+    # Check 2: Floating Point Match (Precision 1e-6)
+    elif is_float(val_out) and is_float(val_exp):
+        if abs(float(val_out) - float(val_exp)) < 1e-6:
+            match = True
 
-//     if match:
-//         print(f'\033[1;32m✅ OK (Test Case {i+1})\033[0m')
-//         passed_count += 1
-//     else:
-//         print(f'\033[1;31m❌ Test Case {i+1} Failed!\033[0m')
-//         print(f'   Your Output: \033[1m{val_out}\033[0m')
-//         print(f'   Expected:    \033[1m{val_exp}\033[0m')
-//         print('-' * 30)
+    if match:
+        print(f'\033[1;32m✅ OK (Test Case {i+1})\033[0m')
+        passed_count += 1
+    else:
+        print(f'\033[1;31m❌ Test Case {i+1} Failed!\033[0m')
+        print(f'   Your Output: \033[1m{val_out}\033[0m')
+        print(f'   Expected:    \033[1m{val_exp}\033[0m')
+        print('-' * 30)
 
-// # 4. Final Summary
-// print('\n' + '='*30)
-// if passed_count == total_cases:
-//     print(f'\033[1;32m🎉 ACCEPTED ({passed_count}/{total_cases})\033[0m')
-// else:
-//     print(f'\033[1;31m💀 WRONG ANSWER ({passed_count}/{total_cases} passed)\033[0m')
-// print('='*30)
-// "
-//             # 5. TLE Warning (if slower than 1.0s)
-//             if (( $(echo "$runtime > 1.0" |bc -l) )); then
-//                 echo "\033[1;33m⚠️  WARNING: Slow Runtime (${runtime}s)\033[0m"
-//             else
-//                 echo "\033[1;30mRuntime: ${runtime}s\033[0m"
-//             fi
+# 4. Final Summary
+print('\n' + '='*30)
+if passed_count == total_cases:
+    print(f'\033[1;32m🎉 ACCEPTED ({passed_count}/{total_cases})\033[0m')
+else:
+    print(f'\033[1;31m💀 WRONG ANSWER ({passed_count}/{total_cases} passed)\033[0m')
+print('='*30)
+"
+            # 5. TLE Warning (if slower than 1.0s)
+            if (( $(echo "$runtime > 1.0" |bc -l) )); then
+                echo "\033[1;33m⚠️  WARNING: Slow Runtime (${runtime}s)\033[0m"
+            else
+                echo "\033[1;30mRuntime: ${runtime}s\033[0m"
+            fi
 
-//         else
-//             echo "No 'expected.txt' found."
-//             cat my_output.txt
-//         fi
+        else
+            echo "No 'expected.txt' found."
+            cat my_output.txt
+        fi
 
-//         rm my_output.txt
-//     fi
-// }
+        rm my_output.txt
+    fi
+}
 
 
 // debug() {
