@@ -165,7 +165,6 @@ int main()
   
 }
 
- 
 run() {
     # 1. Safety Check: Does file exist?
     if [ ! -f "$1.cpp" ]; then
@@ -174,52 +173,45 @@ run() {
     fi
 
     # 2. Compile (Standard CP flags + LOCAL defined)
-    # Added '-I std_lib' in case you use precompiled headers later
     echo "\033[1;34m🔨 Compiling $1.cpp...\033[0m"
     g++ -o sol -Wall -Wextra -std=c++17 -O2 -DLOCAL -I std_lib "$1.cpp"
 
     if [ $? -eq 0 ]; then
         # 3. GRANDMASTER TWEAK: Unlimited Stack
-        # Fixes "Segmentation Fault" on Mac for deep DFS/Recursion
         ulimit -s unlimited
 
-        # 4. Python Wrapper for Execution, Timing, and Safety
+        # 4. Python Wrapper for Execution with Colorful Headers
         python3 -c "
-import sys, subprocess, os, resource
+import sys, subprocess, os, resource, re
 
-# Check for Interactive Mode (pass 'int' as 2nd arg)
 interactive = '$2' == 'int'
 
 try:
-    infile = None
-    # Setup Input
+    infile_path = 'input.txt'
     if not interactive:
-        if os.path.exists('input.txt'):
-            infile = open('input.txt', 'r')
+        if os.path.exists(infile_path):
+            infile = open(infile_path, 'r')
             print('\033[1;32m✅ Running with input.txt...\033[0m')
         else:
             print('\033[1;33m⚠️  input.txt not found. (Type manual input)...\033[0m')
+            infile = None
     else:
         print('\033[1;35m🗣️  INTERACTIVE MODE ACTIVE (Manual Input)...\033[0m')
+        infile = None
 
     print('---------------------------------------------------')
 
-    # Start Timing (CPU Children)
     usage_start = resource.getrusage(resource.RUSAGE_CHILDREN)
 
-    # Run Process
-    # We pipe stdout so we can truncate it if it floods the terminal
     process = subprocess.Popen(
         ['./sol'], 
         stdin=infile, 
         stdout=subprocess.PIPE, 
         stderr=subprocess.PIPE,
         text=True,
-        bufsize=1 # Line buffered for live output
+        bufsize=1
     )
 
-    # GRANDMASTER TWEAK: Output Flood Protection
-    # Read line by line. If lines > 1000, kill it to save terminal.
     line_count = 0
     try:
         while True:
@@ -227,7 +219,14 @@ try:
             if output == '' and process.poll() is not None:
                 break
             if output:
-                sys.stdout.write(output)
+                # COLORFUL HEADERS LOGIC:
+                # If a line contains 'Test case X', color it Green with a checkmark
+                if re.search(r'Test case \d+', output, re.IGNORECASE):
+                    colored_output = re.sub(r'(Test case \d+)', r'\033[1;32m✅ \1\033[0m', output, flags=re.IGNORECASE)
+                    sys.stdout.write(colored_output)
+                else:
+                    sys.stdout.write(output)
+                
                 line_count += 1
                 if line_count > 1000:
                     print('\n\033[1;41m 🛑 EMERGENCY STOP: Output Limit Exceeded (>1000 lines) \033[0m')
@@ -236,20 +235,18 @@ try:
     except KeyboardInterrupt:
         print('\n\033[1;31m🛑 Manual Stop.\033[0m')
     
-    # Wait for finish
     process.wait()
-    
-    # End Timing
     usage_end = resource.getrusage(resource.RUSAGE_CHILDREN)
     if infile: infile.close()
 
-    # Calculate Pure CPU Time (User + System)
     cpu_time_ms = ((usage_end.ru_utime - usage_start.ru_utime) + 
                    (usage_end.ru_stime - usage_start.ru_stime)) * 1000
 
     print('\n---------------------------------------------------')
     if cpu_time_ms > 1000:
         print(f'\033[1;31m⏱️  Judge Time: {cpu_time_ms:.3f} ms (TLE Risk ⚠️)\033[0m')
+    elif cpu_time_ms > 500:
+        print(f'\033[1;33m⏱️  Judge Time: {cpu_time_ms:.3f} ms (Warning)\033[0m')
     else:
         print(f'\033[1;36m⏱️  Judge Time: {cpu_time_ms:.3f} ms\033[0m')
 
@@ -370,13 +367,20 @@ debug() {
     # 1. Silence Mac Warning
     export MallocNanoZone=0
 
-    echo "\n\033[1;35m🛠️  [DEBUG MODE] Compiling with Strict Checks...\033[0m"
+    # 2. Input Safety Check
+    if [ ! -s "input.txt" ]; then
+        echo "\033[1;33m⚠️  Warning: 'input.txt' is empty or missing!\033[0m"
+    fi
 
-    # 2. Compile with HARDENING (Strict Vector Checks) + Sanitizers
-    clang++ -o sol -std=c++17 -g -O0 -fsanitize=address,undefined \
+    echo "\n\033[1;35m🛠️  [DEBUG MODE] Compiling with Static Analysis & Strict Checks...\033[0m"
+
+    # 3. Compile with EVERYTHING (Sanitizers + Hardening + Static Analysis)
+    clang++ -o sol -std=c++17 -g -O0 \
+    -fsanitize=address,undefined \
     -DLOCAL \
     -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG \
     -D_LIBCPP_DEBUG=1 \
+    -Wall -Wextra -Wshadow -Wfloat-equal -Wconversion -Wuninitialized -Wparentheses \
     "$1.cpp"
 
     if [ $? -ne 0 ]; then
@@ -387,13 +391,13 @@ debug() {
     echo "\033[1;32m✅ Ready. Running...\033[0m"
     echo "---------------------------------------------------"
 
-    # 3. Run safely and CAPTURE errors to a hidden file
+    # 4. Run safely and CAPTURE errors
     ASAN_OPTIONS=detect_stack_use_after_return=1:handle_abort=1 UBSAN_OPTIONS=print_stacktrace=1 \
     ./sol < input.txt 2> .debug_log
 
     EXIT_CODE=$?
 
-    # 4. Show the full output first
+    # Show output
     cat .debug_log
 
     echo "\n---------------------------------------------------"
@@ -403,28 +407,36 @@ debug() {
         echo "\033[1;31m💀 CRASH DETECTED! (Exit Code: $EXIT_CODE)\033[0m"
         
         # 5. AUTOMATICALLY EXTRACT LINE NUMBER
-        # Finds "a.cpp:12" inside the log
         CRASH_INFO=$(grep -o "$1.cpp:[0-9]*" .debug_log | head -n 1)
 
         if [ -n "$CRASH_INFO" ]; then
-            # Extract just the number (e.g., "12") from "a.cpp:12"
             LINE_NUM=$(echo "$CRASH_INFO" | cut -d: -f2)
             
-            # Read that specific line from the source file
-            CODE_SNIPPET=$(sed "${LINE_NUM}q;d" "$1.cpp")
+            # MATH: Calculate range (Line-2 to Line+2)
+            START_LINE=$((LINE_NUM - 2))
+            if [ $START_LINE -lt 1 ]; then START_LINE=1; fi
+            END_LINE=$((LINE_NUM + 2))
 
-            # Print it beautifully
-            echo "\n\033[1;33m🎯 BUG FOUND AT: \033[1;4;31m $CRASH_INFO \033[0m"
-            echo "\033[1;30m   >> \033[1;37m$CODE_SNIPPET \033[0m"
+            echo "\n\033[1;33m🎯 BUG FOUND AT: \033[1;4;31m $CRASH_INFO \033[0m \033[1;30m(Showing Context)\033[0m"
+            echo "\033[0m----------------------------------------"
+            
+            # Print the snippet with line numbers
+            # We use 'awk' to print lines and highlight the crash line with '>>'
+            awk -v target="$LINE_NUM" -v start="$START_LINE" -v end="$END_LINE" '
+                NR >= start && NR <= end { 
+                    if (NR == target) printf "\033[1;31m>> %d | %s\033[0m\n", NR, $0; 
+                    else              printf "\033[1;30m   %d | %s\033[0m\n", NR, $0; 
+                }
+            ' "$1.cpp"
+            
+            echo "----------------------------------------"
         else
             echo "Scroll up ⬆️  to see the error details."
         fi
     fi
     
-    # Cleanup temp file
     rm -f .debug_log
 }
-
 
 precompile() {
     echo "\033[1;33m⏳ Precompiling bits/stdc++.h (This takes ~5 seconds)...\033[0m"
