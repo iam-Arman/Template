@@ -430,6 +430,77 @@ clean() {
     echo "\033[1;32m✨ Clean.\033[0m"
 }
 
+
+stress() {
+    # 1. Check if required files exist
+    if [[ ! -f "$1.cpp" ]] || [[ ! -f "brute.cpp" ]] || [[ ! -f "gen.cpp" ]]; then
+        echo "\033[1;31m❌ Error: You need $1.cpp, brute.cpp, and gen.cpp in this folder.\033[0m"
+        return
+    fi
+
+    echo "\033[1;34m🔨 Compiling $1.cpp, brute.cpp, and gen.cpp...\033[0m"
     
+    # 2. Compile Everything
+    # We use -O2 for speed. brute.cpp also needs to be compiled.
+    g++ -o sol -Wall -Wextra -std=c++17 -O2 "$1.cpp"
+    g++ -o brute -std=c++17 -O2 brute.cpp
+    g++ -o gen -std=c++17 -O2 gen.cpp
+
+    if [ $? -ne 0 ]; then
+        echo "\033[1;31m❌ Compilation Failed!\033[0m"
+        return
+    fi
+
+    # 3. Increase Stack Size (Prevents Mac DFS crashes)
+    ulimit -s unlimited
+
+    echo "\033[1;32m✅ Compilation Done. Starting Stress Test...\033[0m"
+    echo "---------------------------------------------------"
+
+    # 4. Python Loop for High Speed Testing
+    python3 -c "
+import sys, subprocess, os
+
+i = 1
+while True:
+    # A. Generate Input
+    with open('input.txt', 'w') as f_in:
+        subprocess.run(['./gen'], stdout=f_in)
+
+    # B. Run Your Solution
+    with open('input.txt', 'r') as f_in, open('my_out.txt', 'w') as f_out:
+        subprocess.run(['./sol'], stdin=f_in, stdout=f_out)
+
+    # C. Run Brute Force
+    with open('input.txt', 'r') as f_in, open('brute_out.txt', 'w') as f_out:
+        subprocess.run(['./brute'], stdin=f_in, stdout=f_out)
+
+    # D. Compare (Strip whitespace for fairness)
+    with open('my_out.txt') as f1, open('brute_out.txt') as f2:
+        out = [l.strip() for l in f1 if l.strip()]
+        ans = [l.strip() for l in f2 if l.strip()]
+
+    if out == ans:
+        # Print progress on the same line (\r)
+        sys.stdout.write(f'\r\033[1;32m✅ Passed Test {i}\033[0m')
+        sys.stdout.flush()
+        i += 1
+    else:
+        print(f'\n\n\033[1;31m❌ FOUND FAILING TEST CASE ({i})!\033[0m')
+        print('---------------------------------------------------')
+        
+        print('\033[1;33m[ INPUT ]\033[0m')
+        with open('input.txt') as f: print(f.read().strip())
+        
+        print('\n\033[1;33m[ YOUR OUTPUT ]\033[0m')
+        with open('my_out.txt') as f: print(f.read().strip())
+        
+        print('\n\033[1;33m[ CORRECT OUTPUT ]\033[0m')
+        with open('brute_out.txt') as f: print(f.read().strip())
+        
+        print('---------------------------------------------------')
+        break # Stop the loop
+"
+}
 
 
