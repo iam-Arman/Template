@@ -168,40 +168,121 @@ int main()
  
 
 
+run() {
+    # 1. Check if file exists to prevent confusion
+    if [ ! -f "$1.cpp" ]; then
+        echo "\033[1;31m❌ Error: File '$1.cpp' not found.\033[0m"
+        return
+    fi
 
-// run() {
-// # Compile the file (uses the first argument $1)
-//     g++ -o sol -Wall -Wextra -std=c++17 -O2 -DLOCAL "$1.cpp"
-        
-//     # If compilation is successful ($? -eq 0), run it
-//     if [ $? -eq 0 ]; then
-//         echo "Running with input.txt..."
-//         time ./sol < input.txt
-//     fi  
-        
-// }
+    # 2. Compile (Standard CP flags + LOCAL defined)
+    echo "\033[1;34m🔨 Compiling $1.cpp...\033[0m"
+    g++ -o sol -Wall -Wextra -std=c++17 -O2 -DLOCAL "$1.cpp"
+
+    if [ $? -eq 0 ]; then
+        echo "\033[1;32m✅ Compiled. Running with input.txt...\033[0m"
+        echo "---------------------------------------------------"
+
+        # 3. Python Wrapper for Judge-Level Timing
+        # We use Python to run the process so we can measure CPU usage directly
+        python3 -c "
+import sys
+import subprocess
+import os
+import resource
+
+try:
+    if os.path.exists('input.txt'):
+        infile = open('input.txt', 'r')
+    else:
+        print('\033[1;33m⚠️  Warning: input.txt not found (waiting for manual input)...\033[0m')
+        infile = None
+
+    # Snapshot CPU time BEFORE
+    usage_start = resource.getrusage(resource.RUSAGE_CHILDREN)
+
+    # Run the solution
+    # We let stdout go directly to terminal (capture_output=False) so you see output instantly
+    subprocess.run(['./sol'], stdin=infile)
+
+    # Snapshot CPU time AFTER
+    usage_end = resource.getrusage(resource.RUSAGE_CHILDREN)
+    
+    if infile: infile.close()
+
+    # Calculate Pure CPU Time (User + System)
+    cpu_time_ms = ((usage_end.ru_utime - usage_start.ru_utime) + 
+                   (usage_end.ru_stime - usage_start.ru_stime)) * 1000
+
+    print('\n---------------------------------------------------')
+    if cpu_time_ms > 1000:
+        print(f'\033[1;31m⏱️  Judge Time: {cpu_time_ms:.3f} ms (TLE Risk ⚠️)\033[0m')
+    else:
+        print(f'\033[1;36m⏱️  Judge Time: {cpu_time_ms:.3f} ms\033[0m')
+
+except Exception as e:
+    print(f'\n\033[1;31m❌ Runtime Error: {e}\033[0m')
+"
+    else
+        echo "\033[1;31m❌ Compilation Failed!\033[0m"
+    fi
+}
 
 // TIMEFMT=$'\nReal:\t%E\nUser:\t%U\nSys:\t%S'
-
 match() {
-    # 1. Compile (NO -DLOCAL, so output is clean for checking)
+    # 1. Compile Solution
     g++ -o sol -Wall -Wextra -std=c++17 -O2 "$1.cpp"
 
     if [ $? -eq 0 ]; then
         echo "--- Running $1 vs expected.txt ---"
 
-        # 2. Run code and measure time
-        # We capture the start/end time to warn if it's too slow (Time Limit Exceeded)
-        start=$(date +%s.%N)
-        ./sol < input.txt > my_output.txt
-        end=$(date +%s.%N)
-        runtime=$( echo "$end - $start" | bc -l )
-
-        # 3. Smart Python Checker
-        if [ -f "expected.txt" ]; then
-            python3 -c "
+        # 2. Python Script with Resource Usage Tracking
+        python3 -c "
 import sys
+import subprocess
+import os
+import resource  # <--- This is the magic tool
 
+# --- STEP 1: RUN YOUR CODE & MEASURE CPU USAGE ---
+try:
+    if os.path.exists('input.txt'):
+        infile = open('input.txt', 'r')
+    else:
+        infile = None
+
+    # Snapshot of CPU time used by children BEFORE running
+    usage_start = resource.getrusage(resource.RUSAGE_CHILDREN)
+    
+    # Run the solution
+    result = subprocess.run(['./sol'], stdin=infile, capture_output=True, text=True)
+    
+    # Snapshot of CPU time used by children AFTER running
+    usage_end = resource.getrusage(resource.RUSAGE_CHILDREN)
+    
+    if infile: infile.close()
+
+    # Calculate PURE CPU Time (User Time + System Time)
+    # This ignores 'waiting' time and only counts 'working' time
+    cpu_time_s = (usage_end.ru_utime - usage_start.ru_utime) + (usage_end.ru_stime - usage_start.ru_stime)
+    cpu_time_ms = cpu_time_s * 1000
+    
+    my_output = result.stdout.strip().splitlines()
+    
+except Exception as e:
+    print(f'\033[1;31m❌ Execution Error: {e}\033[0m')
+    sys.exit(1)
+
+# --- STEP 2: COMPARE OUTPUT ---
+try:
+    with open('expected.txt', 'r') as f:
+        expected = [line.strip() for line in f if line.strip()]
+    my_output = [line.strip() for line in my_output if line.strip()]
+except FileNotFoundError:
+    print('\033[1;33m⚠️  No expected.txt found. Showing output:\033[0m')
+    print('\n'.join(my_output))
+    sys.exit(0)
+
+# Helper for float comparison
 def is_float(s):
     try:
         float(s)
@@ -209,26 +290,16 @@ def is_float(s):
     except ValueError:
         return False
 
-try:
-    with open('my_output.txt') as f1, open('expected.txt') as f2:
-        out = [line.strip() for line in f1 if line.strip()]
-        exp = [line.strip() for line in f2 if line.strip()]
-except:
-    print('Error reading files.')
-    sys.exit(1)
 passed_count = 0
-total_cases = max(len(out), len(exp))
+total_cases = max(len(my_output), len(expected))
 
 for i in range(total_cases):
-    val_out = out[i] if i < len(out) else '(missing)'
-    val_exp = exp[i] if i < len(exp) else '(missing)'
+    val_out = my_output[i] if i < len(my_output) else '(missing)'
+    val_exp = expected[i] if i < len(expected) else '(missing)'
 
     match = False
-
-    # Check 1: Exact String Match
     if val_out == val_exp:
         match = True
-    # Check 2: Floating Point Match (Precision 1e-6)
     elif is_float(val_out) and is_float(val_exp):
         if abs(float(val_out) - float(val_exp)) < 1e-6:
             match = True
@@ -242,65 +313,60 @@ for i in range(total_cases):
         print(f'   Expected:    \033[1m{val_exp}\033[0m')
         print('-' * 30)
 
-# 4. Final Summary
+# --- STEP 3: SUMMARY ---
 print('\n' + '='*30)
 if passed_count == total_cases:
     print(f'\033[1;32m🎉 ACCEPTED ({passed_count}/{total_cases})\033[0m')
 else:
     print(f'\033[1;31m💀 WRONG ANSWER ({passed_count}/{total_cases} passed)\033[0m')
 print('='*30)
+
+# --- STEP 4: JUDGE TIME DISPLAY ---
+if cpu_time_ms > 1000:
+    print(f'\033[1;31m⚠️  SLOW: {cpu_time_ms:.3f} ms (TLE Risk)\033[0m')
+elif cpu_time_ms > 500:
+    print(f'\033[1;33m⚠️  WARNING: {cpu_time_ms:.3f} ms\033[0m')
+else:
+    # Bright Blue for CPU time
+    print(f'\033[1;36m⏱️  Judge Time: {cpu_time_ms:.3f} ms\033[0m')
 "
-            # 5. TLE Warning (if slower than 1.0s)
-            if (( $(echo "$runtime > 1.0" |bc -l) )); then
-                echo "\033[1;33m⚠️  WARNING: Slow Runtime (${runtime}s)\033[0m"
-            else
-                echo "\033[1;30mRuntime: ${runtime}s\033[0m"
-            fi
-
-        else
-            echo "No 'expected.txt' found."
-            cat my_output.txt
-        fi
-
-        rm my_output.txt
     fi
 }
 
+debug() {
+    # 1. Automatically silence the Mac "Nano Zone" warning
+    export MallocNanoZone=0
 
-// debug() {
-//     # 1. Automatically silence the Mac "Nano Zone" warning
-//     export MallocNanoZone=0
+    echo "\n\033[1;34m🛠️  [DEBUG MODE] Compiling $1.cpp...\033[0m"
 
-//     echo "\n\033[1;34m🛠️  [DEBUG MODE] Compiling $1.cpp...\033[0m"
+    # 2. Compile with Clang (Best for Mac)
+    # -g        : Adds line numbers to error messages
+    # -O0       : Disables optimization so variables are easy to track
+    # -fsanitize: Turns on the "Crash Catcher" (Address + Undefined Behavior)
+    clang++ -o sol -std=c++17 -g -O0 -fsanitize=address,undefined -DLOCAL "$1.cpp"
 
-//     # 2. Compile with Clang (Best for Mac)
-//     # -g        : Adds line numbers to error messages
-//     # -O0       : Disables optimization so variables are easy to track
-//     # -fsanitize: Turns on the "Crash Catcher" (Address + Undefined Behavior)
-//     clang++ -o sol -std=c++17 -g -O0 -fsanitize=address,undefined -DLOCAL "$1.cpp"
+    if [ $? -ne 0 ]; then
+        echo "\033[1;31m❌ Compilation Failed!\033[0m"
+        return
+    fi
 
-//     if [ $? -ne 0 ]; then
-//         echo "\033[1;31m❌ Compilation Failed!\033[0m"
-//         return
-//     fi
+    echo "\033[1;32m✅ Compilation Successful. Running...\033[0m"
+    echo "==================================================="
 
-//     echo "\033[1;32m✅ Compilation Successful. Running...\033[0m"
-//     echo "==================================================="
+    # 3. Run with extra checks (Catch stack errors)
+    # We capture the exit code ($?) to check if it crashed
+    ASAN_OPTIONS=detect_stack_use_after_return=1 ./sol < input.txt
+    EXIT_CODE=$?
 
-//     # 3. Run with extra checks (Catch stack errors)
-//     # We capture the exit code ($?) to check if it crashed
-//     ASAN_OPTIONS=detect_stack_use_after_return=1 ./sol < input.txt
-//     EXIT_CODE=$?
-
-//     echo "\n==================================================="
-//  # 4. Final Verdict
-//     if [ $EXIT_CODE -eq 0 ]; then
-//         echo "\033[1;32m✨ CLEAN RUN: No crashes or memory errors detected.\033[0m"
-//     else
-//         echo "\033[1;31m💀 CRASH DETECTED! (Exit Code: $EXIT_CODE)\033[0m"
-//         echo "Scroll up ⬆️  to see the red error report and line number."
-//     fi
-// }
+    echo "\n==================================================="
+ # 4. Final Verdict
+    if [ $EXIT_CODE -eq 0 ]; then
+        echo "\033[1;32m✨ CLEAN RUN: No crashes or memory errors detected.\033[0m"
+    else
+        echo "\033[1;31m💀 CRASH DETECTED! (Exit Code: $EXIT_CODE)\033[0m"
+        echo "Scroll up ⬆️  to see the red error report and line number."
+    fi
+}
     
 
 
