@@ -367,38 +367,62 @@ else:
 }
 
 debug() {
-    # 1. Automatically silence the Mac "Nano Zone" warning
+    # 1. Silence Mac Warning
     export MallocNanoZone=0
 
-    echo "\n\033[1;34m🛠️  [DEBUG MODE] Compiling $1.cpp...\033[0m"
+    echo "\n\033[1;35m🛠️  [DEBUG MODE] Compiling with Strict Checks...\033[0m"
 
-    # 2. Compile with Clang (Best for Mac)
-    # -g        : Adds line numbers to error messages
-    # -O0       : Disables optimization so variables are easy to track
-    # -fsanitize: Turns on the "Crash Catcher" (Address + Undefined Behavior)
-    clang++ -o sol -std=c++17 -g -O0 -fsanitize=address,undefined -DLOCAL "$1.cpp"
+    # 2. Compile with HARDENING (Strict Vector Checks) + Sanitizers
+    clang++ -o sol -std=c++17 -g -O0 -fsanitize=address,undefined \
+    -DLOCAL \
+    -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG \
+    -D_LIBCPP_DEBUG=1 \
+    "$1.cpp"
 
     if [ $? -ne 0 ]; then
         echo "\033[1;31m❌ Compilation Failed!\033[0m"
         return
     fi
 
-    echo "\033[1;32m✅ Compilation Successful. Running...\033[0m"
-    echo "==================================================="
+    echo "\033[1;32m✅ Ready. Running...\033[0m"
+    echo "---------------------------------------------------"
 
-    # 3. Run with extra checks (Catch stack errors)
-    # We capture the exit code ($?) to check if it crashed
-    ASAN_OPTIONS=detect_stack_use_after_return=1 ./sol < input.txt
+    # 3. Run safely and CAPTURE errors to a hidden file
+    ASAN_OPTIONS=detect_stack_use_after_return=1:handle_abort=1 UBSAN_OPTIONS=print_stacktrace=1 \
+    ./sol < input.txt 2> .debug_log
+
     EXIT_CODE=$?
 
-    echo "\n==================================================="
- # 4. Final Verdict
+    # 4. Show the full output first
+    cat .debug_log
+
+    echo "\n---------------------------------------------------"
     if [ $EXIT_CODE -eq 0 ]; then
-        echo "\033[1;32m✨ CLEAN RUN: No crashes or memory errors detected.\033[0m"
+        echo "\033[1;32m✨ CLEAN RUN: No errors found.\033[0m"
     else
         echo "\033[1;31m💀 CRASH DETECTED! (Exit Code: $EXIT_CODE)\033[0m"
-        echo "Scroll up ⬆️  to see the red error report and line number."
+        
+        # 5. AUTOMATICALLY EXTRACT LINE NUMBER
+        # Finds "a.cpp:12" inside the log
+        CRASH_INFO=$(grep -o "$1.cpp:[0-9]*" .debug_log | head -n 1)
+
+        if [ -n "$CRASH_INFO" ]; then
+            # Extract just the number (e.g., "12") from "a.cpp:12"
+            LINE_NUM=$(echo "$CRASH_INFO" | cut -d: -f2)
+            
+            # Read that specific line from the source file
+            CODE_SNIPPET=$(sed "${LINE_NUM}q;d" "$1.cpp")
+
+            # Print it beautifully
+            echo "\n\033[1;33m🎯 BUG FOUND AT: \033[1;4;31m $CRASH_INFO \033[0m"
+            echo "\033[1;30m   >> \033[1;37m$CODE_SNIPPET \033[0m"
+        else
+            echo "Scroll up ⬆️  to see the error details."
+        fi
     fi
+    
+    # Cleanup temp file
+    rm -f .debug_log
 }
 
 
