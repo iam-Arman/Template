@@ -166,48 +166,81 @@ int main()
 }
 
  
-
-
 run() {
-    # 1. Check if file exists to prevent confusion
+    # 1. Safety Check: Does file exist?
     if [ ! -f "$1.cpp" ]; then
         echo "\033[1;31m❌ Error: File '$1.cpp' not found.\033[0m"
         return
     fi
 
     # 2. Compile (Standard CP flags + LOCAL defined)
+    # Added '-I std_lib' in case you use precompiled headers later
     echo "\033[1;34m🔨 Compiling $1.cpp...\033[0m"
-    g++ -o sol -Wall -Wextra -std=c++17 -O2 -DLOCAL "$1.cpp"
+    g++ -o sol -Wall -Wextra -std=c++17 -O2 -DLOCAL -I std_lib "$1.cpp"
 
     if [ $? -eq 0 ]; then
-        echo "\033[1;32m✅ Compiled. Running with input.txt...\033[0m"
-        echo "---------------------------------------------------"
+        # 3. GRANDMASTER TWEAK: Unlimited Stack
+        # Fixes "Segmentation Fault" on Mac for deep DFS/Recursion
+        ulimit -s unlimited
 
-        # 3. Python Wrapper for Judge-Level Timing
-        # We use Python to run the process so we can measure CPU usage directly
+        # 4. Python Wrapper for Execution, Timing, and Safety
         python3 -c "
-import sys
-import subprocess
-import os
-import resource
+import sys, subprocess, os, resource
+
+# Check for Interactive Mode (pass 'int' as 2nd arg)
+interactive = '$2' == 'int'
 
 try:
-    if os.path.exists('input.txt'):
-        infile = open('input.txt', 'r')
+    infile = None
+    # Setup Input
+    if not interactive:
+        if os.path.exists('input.txt'):
+            infile = open('input.txt', 'r')
+            print('\033[1;32m✅ Running with input.txt...\033[0m')
+        else:
+            print('\033[1;33m⚠️  input.txt not found. (Type manual input)...\033[0m')
     else:
-        print('\033[1;33m⚠️  Warning: input.txt not found (waiting for manual input)...\033[0m')
-        infile = None
+        print('\033[1;35m🗣️  INTERACTIVE MODE ACTIVE (Manual Input)...\033[0m')
 
-    # Snapshot CPU time BEFORE
+    print('---------------------------------------------------')
+
+    # Start Timing (CPU Children)
     usage_start = resource.getrusage(resource.RUSAGE_CHILDREN)
 
-    # Run the solution
-    # We let stdout go directly to terminal (capture_output=False) so you see output instantly
-    subprocess.run(['./sol'], stdin=infile)
+    # Run Process
+    # We pipe stdout so we can truncate it if it floods the terminal
+    process = subprocess.Popen(
+        ['./sol'], 
+        stdin=infile, 
+        stdout=subprocess.PIPE, 
+        stderr=subprocess.PIPE,
+        text=True,
+        bufsize=1 # Line buffered for live output
+    )
 
-    # Snapshot CPU time AFTER
-    usage_end = resource.getrusage(resource.RUSAGE_CHILDREN)
+    # GRANDMASTER TWEAK: Output Flood Protection
+    # Read line by line. If lines > 1000, kill it to save terminal.
+    line_count = 0
+    try:
+        while True:
+            output = process.stdout.readline()
+            if output == '' and process.poll() is not None:
+                break
+            if output:
+                sys.stdout.write(output)
+                line_count += 1
+                if line_count > 1000:
+                    print('\n\033[1;41m 🛑 EMERGENCY STOP: Output Limit Exceeded (>1000 lines) \033[0m')
+                    process.kill()
+                    break
+    except KeyboardInterrupt:
+        print('\n\033[1;31m🛑 Manual Stop.\033[0m')
     
+    # Wait for finish
+    process.wait()
+    
+    # End Timing
+    usage_end = resource.getrusage(resource.RUSAGE_CHILDREN)
     if infile: infile.close()
 
     # Calculate Pure CPU Time (User + System)
