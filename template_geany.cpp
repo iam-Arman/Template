@@ -9,11 +9,15 @@
 // #pragma GCC optimization ("strict-overflow")
  
 #include<bits/stdc++.h>
-#include <ext/pb_ds/tree_policy.hpp>
-#include <ext/pb_ds/assoc_container.hpp>
+
 
 using namespace std;
-using namespace __gnu_pbds;
+
+#ifndef __clang__
+    #include <ext/pb_ds/tree_policy.hpp>
+    #include <ext/pb_ds/assoc_container.hpp>
+    using namespace __gnu_pbds;
+#endif
 
                                                     ////       TEMPLATE       ////
 
@@ -39,7 +43,7 @@ using namespace __gnu_pbds;
 
 constexpr ll mod=1000000000+7;
 constexpr ll INF=LLONG_MAX;
-constexpr double PI= acos(-1);
+const double PI= acos(-1);
 constexpr double eps=1e-9;
 
 # define mem(a,b) memset(a,b,sizeof(a))
@@ -122,7 +126,19 @@ int dy[]={ 0, 0 ,-1 , 1 , -1 , 1,-1, 1};
 
 void solve()
 {  
+   int n;
+   cin>>n;
+   vector<int> vec(n+1);
+   for(int i=1;i<=n;i++)
+   {
+	   cin>>vec[i];
+   }
    
+   for(int i=1;i<=n;i++)
+   {
+	   cout<<vec[i]<<sp;
+   }
+   cout<<el;
 }
 int main()
 { 
@@ -132,11 +148,11 @@ int main()
     #endif
     
     int t=1;
-    //cin>>t;
+    cin>>t;
     for(int i=1;i<=t;i++)
     {
 		#ifdef LOCAL
-            cout << "Test case " << i << endl;
+            cout <<"\tTest case " << i << endl;
         #endif
         
         solve();
@@ -149,19 +165,142 @@ int main()
   
 }
 
+ 
+
+
 
 // run() {
 // # Compile the file (uses the first argument $1)
 //     g++ -o sol -Wall -Wextra -std=c++17 -O2 -DLOCAL "$1.cpp"
-
+        
 //     # If compilation is successful ($? -eq 0), run it
 //     if [ $? -eq 0 ]; then
 //         echo "Running with input.txt..."
 //         time ./sol < input.txt
-//     fi
-
+//     fi  
+        
 // }
 
 // TIMEFMT=$'\nReal:\t%E\nUser:\t%U\nSys:\t%S'
+
+// match() {
+//     # 1. Compile (NO -DLOCAL, so output is clean for checking)
+//     g++ -o sol -Wall -Wextra -std=c++17 -O2 "$1.cpp"
+
+//     if [ $? -eq 0 ]; then
+//         echo "--- Running $1 vs expected.txt ---"
+
+//         # 2. Run code and measure time
+//         # We capture the start/end time to warn if it's too slow (Time Limit Exceeded)
+//         start=$(date +%s.%N)
+//         ./sol < input.txt > my_output.txt
+//         end=$(date +%s.%N)
+//         runtime=$( echo "$end - $start" | bc -l )
+
+//         # 3. Smart Python Checker
+//         if [ -f "expected.txt" ]; then
+//             python3 -c "
+// import sys
+
+// def is_float(s):
+//     try:
+//         float(s)
+//         return True
+//     except ValueError:
+//         return False
+
+// try:
+//     with open('my_output.txt') as f1, open('expected.txt') as f2:
+//         out = [line.strip() for line in f1 if line.strip()]
+//         exp = [line.strip() for line in f2 if line.strip()]
+// except:
+//     print('Error reading files.')
+//     sys.exit(1)
+// passed_count = 0
+// total_cases = max(len(out), len(exp))
+
+// for i in range(total_cases):
+//     val_out = out[i] if i < len(out) else '(missing)'
+//     val_exp = exp[i] if i < len(exp) else '(missing)'
+
+//     match = False
+
+//     # Check 1: Exact String Match
+//     if val_out == val_exp:
+//         match = True
+//     # Check 2: Floating Point Match (Precision 1e-6)
+//     elif is_float(val_out) and is_float(val_exp):
+//         if abs(float(val_out) - float(val_exp)) < 1e-6:
+//             match = True
+
+//     if match:
+//         print(f'\033[1;32m✅ OK (Test Case {i+1})\033[0m')
+//         passed_count += 1
+//     else:
+//         print(f'\033[1;31m❌ Test Case {i+1} Failed!\033[0m')
+//         print(f'   Your Output: \033[1m{val_out}\033[0m')
+//         print(f'   Expected:    \033[1m{val_exp}\033[0m')
+//         print('-' * 30)
+
+// # 4. Final Summary
+// print('\n' + '='*30)
+// if passed_count == total_cases:
+//     print(f'\033[1;32m🎉 ACCEPTED ({passed_count}/{total_cases})\033[0m')
+// else:
+//     print(f'\033[1;31m💀 WRONG ANSWER ({passed_count}/{total_cases} passed)\033[0m')
+// print('='*30)
+// "
+//             # 5. TLE Warning (if slower than 1.0s)
+//             if (( $(echo "$runtime > 1.0" |bc -l) )); then
+//                 echo "\033[1;33m⚠️  WARNING: Slow Runtime (${runtime}s)\033[0m"
+//             else
+//                 echo "\033[1;30mRuntime: ${runtime}s\033[0m"
+//             fi
+
+//         else
+//             echo "No 'expected.txt' found."
+//             cat my_output.txt
+//         fi
+
+//         rm my_output.txt
+//     fi
+// }
+
+
+// debug() {
+//     # 1. Automatically silence the Mac "Nano Zone" warning
+//     export MallocNanoZone=0
+
+//     echo "\n\033[1;34m🛠️  [DEBUG MODE] Compiling $1.cpp...\033[0m"
+
+//     # 2. Compile with Clang (Best for Mac)
+//     # -g        : Adds line numbers to error messages
+//     # -O0       : Disables optimization so variables are easy to track
+//     # -fsanitize: Turns on the "Crash Catcher" (Address + Undefined Behavior)
+//     clang++ -o sol -std=c++17 -g -O0 -fsanitize=address,undefined -DLOCAL "$1.cpp"
+
+//     if [ $? -ne 0 ]; then
+//         echo "\033[1;31m❌ Compilation Failed!\033[0m"
+//         return
+//     fi
+
+//     echo "\033[1;32m✅ Compilation Successful. Running...\033[0m"
+//     echo "==================================================="
+
+//     # 3. Run with extra checks (Catch stack errors)
+//     # We capture the exit code ($?) to check if it crashed
+//     ASAN_OPTIONS=detect_stack_use_after_return=1 ./sol < input.txt
+//     EXIT_CODE=$?
+
+//     echo "\n==================================================="
+//  # 4. Final Verdict
+//     if [ $EXIT_CODE -eq 0 ]; then
+//         echo "\033[1;32m✨ CLEAN RUN: No crashes or memory errors detected.\033[0m"
+//     else
+//         echo "\033[1;31m💀 CRASH DETECTED! (Exit Code: $EXIT_CODE)\033[0m"
+//         echo "Scroll up ⬆️  to see the red error report and line number."
+//     fi
+// }
+    
 
 
