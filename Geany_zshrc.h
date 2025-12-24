@@ -1,4 +1,3 @@
-
 run() {
     # 1. Safety Check: Does file exist?
     if [ ! -f "$1.cpp" ]; then
@@ -14,9 +13,9 @@ run() {
         # 3. GRANDMASTER TWEAK: Unlimited Stack
         ulimit -s unlimited
 
-        # 4. Python Wrapper for Execution with Colorful Headers
+        # 4. Python Wrapper for Execution with Memory & Time
         python3 -c "
-import sys, subprocess, os, resource, re
+import sys, subprocess, os, resource, re, platform
 
 interactive = '$2' == 'int'
 
@@ -53,8 +52,7 @@ try:
             if output == '' and process.poll() is not None:
                 break
             if output:
-                # COLORFUL HEADERS LOGIC:
-                # If a line contains 'Test case X', color it Green with a checkmark
+                # COLORFUL HEADERS LOGIC
                 if re.search(r'Test case \d+', output, re.IGNORECASE):
                     colored_output = re.sub(r'(Test case \d+)', r'\033[1;32m✅ \1\033[0m', output, flags=re.IGNORECASE)
                     sys.stdout.write(colored_output)
@@ -73,16 +71,34 @@ try:
     usage_end = resource.getrusage(resource.RUSAGE_CHILDREN)
     if infile: infile.close()
 
+    # --- TIME CALCULATION ---
     cpu_time_ms = ((usage_end.ru_utime - usage_start.ru_utime) + 
                    (usage_end.ru_stime - usage_start.ru_stime)) * 1000
 
+    # --- MEMORY CALCULATION (MacOS Specific) ---
+    # macOS reports ru_maxrss in Bytes. Linux reports in Kilobytes.
+    # We auto-detect system to be safe.
+    mem_bytes = usage_end.ru_maxrss
+    if platform.system() == 'Linux':
+        mem_bytes = mem_bytes * 1024 # Convert KB to Bytes for Linux
+    
+    mem_mb = mem_bytes / (1024 * 1024)
+
     print('\n---------------------------------------------------')
+    
+    # Time Output
     if cpu_time_ms > 1000:
         print(f'\033[1;31m⏱️  Judge Time: {cpu_time_ms:.3f} ms (TLE Risk ⚠️)\033[0m')
     elif cpu_time_ms > 500:
         print(f'\033[1;33m⏱️  Judge Time: {cpu_time_ms:.3f} ms (Warning)\033[0m')
     else:
         print(f'\033[1;36m⏱️  Judge Time: {cpu_time_ms:.3f} ms\033[0m')
+
+    # Memory Output
+    if mem_mb > 256: 
+        print(f'\033[1;31m💾 Memory: {mem_mb:.2f} MB (MLE Risk ⚠️)\033[0m')
+    else:
+        print(f'\033[1;35m💾 Memory: {mem_mb:.2f} MB\033[0m')
 
 except Exception as e:
     print(f'\n\033[1;31m❌ Runtime Error: {e}\033[0m')
