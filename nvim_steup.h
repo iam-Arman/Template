@@ -1,5 +1,5 @@
 -- ========================================================================== --
---   THE FINAL CONFIG (Fixed: Splits Stay Open When Closing Tabs)             --
+--   THE FINAL CONFIG (Smart { } Expansion + All Previous Fixes)              --
 -- ========================================================================== --
 
 -- 0. SILENCE WARNINGS
@@ -22,10 +22,10 @@ require("lazy").setup({
   -- === VS CODE VISUALS ===
   { "tanvirtin/monokai.nvim", lazy = false, priority = 1000, config = function() require("monokai").setup() end },
   
-  -- Smart Buffer Close (Keep this!)
+  -- Smart Buffer Close (Split Stays Open)
   { "famiu/bufdelete.nvim" },
 
-  -- Tabs at the top (FIXED: Mouse Click now uses Smart Close)
+  -- Tabs at the top
   { 
     'akinsho/bufferline.nvim', 
     version = "*", 
@@ -37,7 +37,6 @@ require("lazy").setup({
         always_show_bufferline = true,
         show_buffer_close_icons = true,
         show_close_icon = true,
-        -- THIS FIXES THE MOUSE CLICK ISSUE:
         close_command = "Bdelete! %d", 
         right_mouse_command = "Bdelete! %d",
       }
@@ -92,7 +91,22 @@ require("lazy").setup({
   { "Exafunction/codeium.vim", event = "BufEnter" },
   { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" },
   { "numToStr/Comment.nvim", opts = {} },
-  { "windwp/nvim-autopairs", event = "InsertEnter", opts = {} },
+
+  -- FIXED: SMART AUTOPAIRS (This gives you the { cursor } behavior)
+  {
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    dependencies = { "hrsh7th/nvim-cmp" },
+    config = function()
+      require("nvim-autopairs").setup({
+        check_ts = true, -- Checks code structure (Fixes C++ brackets)
+        map_cr = true,   -- Maps Enter key to expand pairs
+      })
+      local cmp_autopairs = require('nvim-autopairs.completion.cmp')
+      local cmp = require('cmp')
+      cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done())
+    end
+  },
 
   -- Intelligence
   { 
@@ -164,8 +178,6 @@ vim.keymap.set('n', '<C-Left>', ':vertical resize -2<CR>'); vim.keymap.set('n', 
 -- === VS CODE KEYBINDINGS ===
 vim.keymap.set('n', '<Tab>', ':BufferLineCycleNext<CR>', { silent = true })
 vim.keymap.set('n', '<S-Tab>', ':BufferLineCyclePrev<CR>', { silent = true })
-
--- FIXED: Both Keyboard and Mouse now use Smart Close
 vim.keymap.set('n', '<leader>x', ':Bdelete!<CR>', { silent = true, desc = "Close Tab" })
 
 -- Search (Cmd+P)
