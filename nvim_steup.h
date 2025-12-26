@@ -204,3 +204,8 @@ vim.api.nvim_create_autocmd("FileType", { pattern = "cpp", callback = function()
 end })
 
 vim.diagnostic.config({ virtual_text = true, signs = true, underline = true, update_in_insert = false })
+
+-- Fix: Cmd+Delete (and Alt+Delete) removes the whole line
+vim.keymap.set('n', '<D-BS>', 'dd', { silent = true })       -- Normal Mode
+vim.keymap.set('i', '<D-BS>', '<Esc>ddi', { silent = true }) -- Insert Mode
+
