@@ -1,5 +1,5 @@
 -- ========================================================================== --
---    iamarman ULTIMATE CONFIG (Crash-Proof Edition)                          --
+--    iamarman ULTIMATE CONFIG (Compact Templates + Crash-Proof)              --
 -- ========================================================================== --
 
 -- 0. SILENCE WARNINGS
@@ -104,26 +104,38 @@ require("lazy").setup({
   -- === AI & EDITOR ===
   { "Exafunction/codeium.vim", event = "BufEnter" },
   
-  -- [FIXED] SAFE TREESITTER CONFIG (Uses pcall to prevent crashes)
+  -- Treesitter (Safe Version)
   { 
     "nvim-treesitter/nvim-treesitter", 
     build = ":TSUpdate",
     event = { "BufReadPost", "BufNewFile" },
     config = function()
       local status_ok, configs = pcall(require, "nvim-treesitter.configs")
-      if not status_ok then return end -- If it fails, just stop here, don't crash
+      if not status_ok then return end 
       configs.setup({ ensure_installed = { "cpp", "lua", "c" }, highlight = { enable = true } })
     end
   },
   
   { "numToStr/Comment.nvim", opts = {} },
+
+  -- [FIXED HERE] FORCED COMPACT FORMATTING
   {
-    "stevearc/conform.nvim", event = { "BufWritePre" },
+    "stevearc/conform.nvim",
+    event = { "BufWritePre" },
     opts = {
+      formatters = {
+        ["clang-format"] = {
+          -- Forced Google Style with Infinite Column Limit to prevent line splitting
+          prepend_args = { 
+            "--style={BasedOnStyle: Google, ColumnLimit: 0, AllowShortFunctionsOnASingleLine: All, BracedPadding: true}" 
+          },
+        },
+      },
       formatters_by_ft = { cpp = { "clang-format" }, lua = { "stylua" } },
       format_on_save = { timeout_ms = 500, lsp_fallback = true },
     },
   },
+
   {
     "windwp/nvim-autopairs", event = "InsertEnter", dependencies = { "hrsh7th/nvim-cmp" },
     config = function()
@@ -237,21 +249,13 @@ vim.diagnostic.config({ virtual_text = true, signs = true, underline = true, upd
 vim.keymap.set('n', '<D-BS>', 'dd', { silent = true })        -- Normal Mode
 vim.keymap.set('i', '<D-BS>', '<Esc>ddi', { silent = true }) -- Insert Mode
 
--- ========================================================================== --
---    MOUSE RESIZE (Ctrl + Scroll to Resize Splits)                           --
--- ========================================================================== --
--- Vertical Resize (Make window wider/narrower)
+-- MOUSE RESIZE
 vim.keymap.set('n', '<C-ScrollWheelUp>', ':vertical resize +2<CR>', { silent = true })
 vim.keymap.set('n', '<C-ScrollWheelDown>', ':vertical resize -2<CR>', { silent = true })
-
--- Horizontal Resize (Make window taller/shorter) - Uses Alt + Scroll
 vim.keymap.set('n', '<M-ScrollWheelUp>', ':resize +2<CR>', { silent = true })
 vim.keymap.set('n', '<M-ScrollWheelDown>', ':resize -2<CR>', { silent = true })
 
-
--- ========================================================================== --
---    MOUSE TOGGLE (Fixes Zoom/Copy issues)                                   --
--- ========================================================================== --
+-- MOUSE TOGGLE
 vim.keymap.set('n', '<leader>m', function()
   if vim.o.mouse == 'a' then
     vim.o.mouse = ''
