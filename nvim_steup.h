@@ -1,5 +1,5 @@
 -- ========================================================================== --
---   THE FINAL WORKING CONFIG (Clean Reset)                                   --
+--   THE FINAL CONFIG (Performance Optimized: No Lag)                         --
 -- ========================================================================== --
 
 -- 0. SILENCE WARNINGS
@@ -104,12 +104,14 @@ require("lazy").setup({
   },
 })
 
--- 3. SETTINGS
+-- 3. SETTINGS (LAG FIXED HERE)
 pcall(function() require'nvim-treesitter.configs'.setup { ensure_installed = { "cpp", "lua" }, highlight = { enable = true } } end)
 vim.opt.number = true; vim.opt.relativenumber = true; vim.opt.mouse = "a"; vim.opt.clipboard = "unnamedplus"
 vim.opt.splitright = true; vim.opt.splitbelow = true; vim.opt.tabstop = 4; vim.opt.shiftwidth = 4; vim.opt.expandtab = true
-vim.opt.updatetime = 100 
 vim.opt.selectmode = 'mouse,key'
+
+-- FIXED: Increased delay to 300ms to stop lag
+vim.opt.updatetime = 300 
 
 -- 4. KEYBINDINGS
 local function smart_map(modes, key, result, is_operator)
@@ -138,13 +140,21 @@ vim.keymap.set('n', '<leader>ff', require('telescope.builtin').find_files, {})
 vim.keymap.set('n', '<F9>', ':w<CR>:vsplit | term g++-15 -g -std=c++17 % -o %< && ./%<<CR>')
 vim.keymap.set('n', '<leader>e', ':Neotree toggle<CR>')
 
--- 5. AUTO-COMMANDS
-vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI", "FocusLost" }, {
+-- 5. AUTO-COMMANDS (SMARTER SAVE)
+-- FIXED: Removed "CursorHold" to stop stuttering while typing.
+-- Now saves only when you leave Insert Mode or Switch Windows.
+vim.api.nvim_create_autocmd({ "InsertLeave", "FocusLost" }, {
   callback = function() if vim.bo.modified and vim.fn.getcmdtype() == "" then vim.cmd("silent! w") end end,
 })
+
 vim.api.nvim_create_autocmd("FileType", { pattern = "cpp", callback = function()
     vim.keymap.set('i', '!cpp', "#include <bits/stdc++.h><CR>using namespace std;<CR><CR>void solve() {<CR><CR>}<CR><CR>int main() {<CR>ios_base::sync_with_stdio(false); cin.tie(NULL);<CR>solve();<CR>return 0;<CR>}<Esc>3ka", { buffer = true })
 end })
 
-vim.diagnostic.config({ virtual_text = true, signs = true, underline = true })
-
+-- FIXED: Don't update errors while typing (prevents lag)
+vim.diagnostic.config({ 
+  virtual_text = true, 
+  signs = true, 
+  underline = true,
+  update_in_insert = false 
+})
