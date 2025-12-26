@@ -1,5 +1,5 @@
 -- ========================================================================== --
---   THE FINAL CONFIG (Smart { } Expansion + All Previous Fixes)              --
+--    iamarman ULTIMATE CONFIG (Crash-Proof Edition)                          --
 -- ========================================================================== --
 
 -- 0. SILENCE WARNINGS
@@ -19,42 +19,56 @@ vim.g.mapleader = " "
 
 -- 2. PLUGINS
 require("lazy").setup({
-  -- === VS CODE VISUALS ===
-  { "tanvirtin/monokai.nvim", lazy = false, priority = 1000, config = function() require("monokai").setup() end },
-  
-  -- Smart Buffer Close (Split Stays Open)
-  { "famiu/bufdelete.nvim" },
+  -- === DASHBOARD (iamarman Edition) ===
+  {
+    "goolord/alpha-nvim",
+    event = "VimEnter",
+    config = function()
+      local dashboard = require("alpha.themes.dashboard")
+      dashboard.section.header.val = {
+        " ███╗   ██╗██╗   ██╗██╗███╗   ███╗",
+        " ████╗  ██║██║   ██║██║████╗ ████║",
+        " ██╔██╗ ██║██║   ██║██║██╔████╔██║",
+        " ██║╚██╗██║╚██╗ ██╔╝██║██║╚██╔╝██║",
+        " ██║ ╚████║ ╚████╔╝ ██║██║ ╚═╝ ██║",
+        " ╚═╝  ╚═══╝  ╚═══╝  ╚═╝╚═╝     ╚═╝",
+        "          iamarman EDITION        ",
+      }
+      dashboard.section.buttons.val = {
+        dashboard.button("n", "  New file", ":ene <BAR> startinsert <CR>"),
+        dashboard.button("f", "  Find file", ":Telescope find_files <CR>"),
+        dashboard.button("r", "  Recent", ":Telescope oldfiles <CR>"),
+        dashboard.button("q", "  Quit", ":qa<CR>"),
+      }
+      require("alpha").setup(dashboard.opts)
+    end,
+  },
 
-  -- Tabs at the top
+  -- === VISUALS ===
+  { "tanvirtin/monokai.nvim", lazy = false, priority = 1000, config = function() require("monokai").setup() end },
+  { "stevearc/dressing.nvim", opts = {} },
+  { "famiu/bufdelete.nvim" },
   { 
-    'akinsho/bufferline.nvim', 
-    version = "*", 
-    dependencies = 'nvim-tree/nvim-web-devicons',
+    'akinsho/bufferline.nvim', version = "*", dependencies = 'nvim-tree/nvim-web-devicons',
     opts = {
       options = {
-        mode = "buffers",
-        separator_style = "slant",
-        always_show_bufferline = true,
-        show_buffer_close_icons = true,
-        show_close_icon = true,
-        close_command = "Bdelete! %d", 
-        right_mouse_command = "Bdelete! %d",
+        mode = "buffers", separator_style = "slant", always_show_bufferline = true,
+        show_buffer_close_icons = true, show_close_icon = true,
+        close_command = "Bdelete! %d", right_mouse_command = "Bdelete! %d",
       }
     }
   },
-  
-  -- Vertical Indent Lines
   { "lukas-reineke/indent-blankline.nvim", main = "ibl", opts = {} },
-
-  -- === STANDARD PLUGINS ===
   { "nvim-lualine/lualine.nvim", opts = { options = { theme = "auto", section_separators = '', component_separators = '' } } },
   { "folke/noice.nvim", event = "VeryLazy", dependencies = { "MunifTanjim/nui.nvim" }, opts = { presets = { bottom_search = true, command_palette = true, long_message_to_split = true } } },
+
+  -- === SEARCH & FILES ===
   { "VonHeikemen/searchbox.nvim", dependencies = { "MunifTanjim/nui.nvim" }, opts = {} },
   { "nvim-telescope/telescope.nvim", dependencies = { "nvim-lua/plenary.nvim" }, opts = {} },
   { "nvim-neo-tree/neo-tree.nvim", branch = "v3.x", dependencies = { "nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim" } },
   { "akinsho/toggleterm.nvim", version = "*", config = function() require("toggleterm").setup({ direction = 'float', open_mapping = [[<c-\>]], float_opts = { border = 'curved', width = 100, height = 30 } }) end },
 
-  -- C++ Runner
+  -- === CP TOOLS ===
   {
     'xeluxee/competitest.nvim',
     dependencies = 'MunifTanjim/nui.nvim',
@@ -71,7 +85,7 @@ require("lazy").setup({
     },
   },
 
-  -- Debugging
+  -- === DEBUGGING ===
   { "williamboman/mason.nvim", config = true },
   {
     "mfussenegger/nvim-dap",
@@ -87,49 +101,67 @@ require("lazy").setup({
     end,
   },
 
-  -- AI & Syntax
+  -- === AI & EDITOR ===
   { "Exafunction/codeium.vim", event = "BufEnter" },
-  { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" },
-  { "numToStr/Comment.nvim", opts = {} },
-
-  -- FIXED: SMART AUTOPAIRS (This gives you the { cursor } behavior)
-  {
-    "windwp/nvim-autopairs",
-    event = "InsertEnter",
-    dependencies = { "hrsh7th/nvim-cmp" },
+  
+  -- [FIXED] SAFE TREESITTER CONFIG (Uses pcall to prevent crashes)
+  { 
+    "nvim-treesitter/nvim-treesitter", 
+    build = ":TSUpdate",
+    event = { "BufReadPost", "BufNewFile" },
     config = function()
-      require("nvim-autopairs").setup({
-        check_ts = true, -- Checks code structure (Fixes C++ brackets)
-        map_cr = true,   -- Maps Enter key to expand pairs
-      })
+      local status_ok, configs = pcall(require, "nvim-treesitter.configs")
+      if not status_ok then return end -- If it fails, just stop here, don't crash
+      configs.setup({ ensure_installed = { "cpp", "lua", "c" }, highlight = { enable = true } })
+    end
+  },
+  
+  { "numToStr/Comment.nvim", opts = {} },
+  {
+    "stevearc/conform.nvim", event = { "BufWritePre" },
+    opts = {
+      formatters_by_ft = { cpp = { "clang-format" }, lua = { "stylua" } },
+      format_on_save = { timeout_ms = 500, lsp_fallback = true },
+    },
+  },
+  {
+    "windwp/nvim-autopairs", event = "InsertEnter", dependencies = { "hrsh7th/nvim-cmp" },
+    config = function()
+      require("nvim-autopairs").setup({ check_ts = true, map_cr = true })
       local cmp_autopairs = require('nvim-autopairs.completion.cmp')
       local cmp = require('cmp')
       cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done())
     end
   },
 
-  -- Intelligence
+  -- === INTELLIGENCE ===
   { 
     "neovim/nvim-lspconfig", 
     config = function() 
       require("lspconfig").clangd.setup({
-        cmd = {
-          "clangd",
-          "--background-index",
-          "--query-driver=/usr/local/bin/g++*,/usr/bin/g++*,/opt/homebrew/bin/g++*"
-        }
+        cmd = { "clangd", "--background-index", "--query-driver=/usr/local/bin/g++*,/usr/bin/g++*,/opt/homebrew/bin/g++*" }
       }) 
     end 
   },
+  { "L3MON4D3/LuaSnip", version = "v2.*", build = "make install_jsregexp" },
+  { "rafamadriz/friendly-snippets" },
+  { "saadparwaiz1/cmp_luasnip" },
   { 
     "hrsh7th/nvim-cmp", 
     dependencies = { "hrsh7th/cmp-nvim-lsp", "hrsh7th/cmp-buffer", "hrsh7th/cmp-path", "hrsh7th/cmp-cmdline", "onsails/lspkind.nvim" },
     config = function()
       local cmp = require('cmp')
+      local luasnip = require('luasnip')
+      require("luasnip.loaders.from_vscode").lazy_load()
       cmp.setup({
+        snippet = { expand = function(args) luasnip.lsp_expand(args.body) end },
         formatting = { format = require('lspkind').cmp_format({ mode = 'symbol', symbol_map = { Codeium = "🤖" } }) },
-        mapping = cmp.mapping.preset.insert({ ['<Tab>'] = cmp.mapping.select_next_item(), ['<CR>'] = cmp.mapping.confirm({ select = true }) }),
-        sources = cmp.config.sources({ { name = 'nvim_lsp' }, { name = 'buffer' } })
+        mapping = cmp.mapping.preset.insert({
+          ['<Tab>'] = cmp.mapping(function(fallback) if cmp.visible() then cmp.select_next_item() elseif luasnip.expand_or_jumpable() then luasnip.expand_or_jump() else fallback() end end, {"i", "s"}),
+          ['<S-Tab>'] = cmp.mapping(function(fallback) if cmp.visible() then cmp.select_prev_item() elseif luasnip.jumpable(-1) then luasnip.jump(-1) else fallback() end end, {"i", "s"}),
+          ['<CR>'] = cmp.mapping.confirm({ select = true }),
+        }),
+        sources = cmp.config.sources({ { name = 'nvim_lsp' }, { name = 'luasnip' }, { name = 'buffer' } })
       })
       cmp.setup.cmdline(':', {
         mapping = cmp.mapping.preset.cmdline({
@@ -144,10 +176,14 @@ require("lazy").setup({
       cmp.setup.cmdline('/', { mapping = cmp.mapping.preset.cmdline(), sources = { { name = 'buffer' } } })
     end
   },
+  {
+    "folke/which-key.nvim", event = "VeryLazy",
+    init = function() vim.o.timeout = true; vim.o.timeoutlen = 300 end,
+    opts = {}
+  },
 })
 
 -- 3. SETTINGS
-pcall(function() require'nvim-treesitter.configs'.setup { ensure_installed = { "cpp", "lua" }, highlight = { enable = true } } end)
 vim.opt.number = true; vim.opt.relativenumber = true; 
 vim.opt.mouse = "a"; 
 vim.opt.clipboard = "unnamedplus"
@@ -174,23 +210,15 @@ vim.keymap.set('v', '<BS>', '"_d'); vim.keymap.set('v', '<Del>', '"_d')
 
 vim.keymap.set('n', '<C-Up>', ':resize +2<CR>'); vim.keymap.set('n', '<C-Down>', ':resize -2<CR>')
 vim.keymap.set('n', '<C-Left>', ':vertical resize -2<CR>'); vim.keymap.set('n', '<C-Right>', ':vertical resize +2<CR>')
-
--- === VS CODE KEYBINDINGS ===
 vim.keymap.set('n', '<Tab>', ':BufferLineCycleNext<CR>', { silent = true })
 vim.keymap.set('n', '<S-Tab>', ':BufferLineCyclePrev<CR>', { silent = true })
 vim.keymap.set('n', '<leader>x', ':Bdelete!<CR>', { silent = true, desc = "Close Tab" })
-
--- Search (Cmd+P)
 vim.keymap.set('n', '<D-p>', require('telescope.builtin').find_files, {})
-
--- Find & Replace
 vim.keymap.set({'n', 'i'}, '<D-f>', ':SearchBoxMatchAll<CR>', { desc = "Find" })
 vim.keymap.set({'n', 'i'}, '<C-f>', ':SearchBoxMatchAll<CR>', { desc = "Find" })
 vim.keymap.set({'n', 'i'}, '<D-F>', ':SearchBoxReplace<CR>', { desc = "Replace" })
 vim.keymap.set({'n', 'i'}, '<C-S-f>', ':SearchBoxReplace<CR>', { desc = "Replace" })
 vim.keymap.set('n', '<leader>ff', require('telescope.builtin').find_files, {})
-
--- F9 uses g++-15
 vim.keymap.set('n', '<F9>', ':w<CR>:vsplit | term g++-15 -g -std=c++17 % -o %< && ./%<<CR>')
 vim.keymap.set('n', '<leader>e', ':Neotree toggle<CR>')
 
@@ -206,6 +234,31 @@ end })
 vim.diagnostic.config({ virtual_text = true, signs = true, underline = true, update_in_insert = false })
 
 -- Fix: Cmd+Delete (and Alt+Delete) removes the whole line
-vim.keymap.set('n', '<D-BS>', 'dd', { silent = true })       -- Normal Mode
+vim.keymap.set('n', '<D-BS>', 'dd', { silent = true })        -- Normal Mode
 vim.keymap.set('i', '<D-BS>', '<Esc>ddi', { silent = true }) -- Insert Mode
+
+-- ========================================================================== --
+--    MOUSE RESIZE (Ctrl + Scroll to Resize Splits)                           --
+-- ========================================================================== --
+-- Vertical Resize (Make window wider/narrower)
+vim.keymap.set('n', '<C-ScrollWheelUp>', ':vertical resize +2<CR>', { silent = true })
+vim.keymap.set('n', '<C-ScrollWheelDown>', ':vertical resize -2<CR>', { silent = true })
+
+-- Horizontal Resize (Make window taller/shorter) - Uses Alt + Scroll
+vim.keymap.set('n', '<M-ScrollWheelUp>', ':resize +2<CR>', { silent = true })
+vim.keymap.set('n', '<M-ScrollWheelDown>', ':resize -2<CR>', { silent = true })
+
+
+-- ========================================================================== --
+--    MOUSE TOGGLE (Fixes Zoom/Copy issues)                                   --
+-- ========================================================================== --
+vim.keymap.set('n', '<leader>m', function()
+  if vim.o.mouse == 'a' then
+    vim.o.mouse = ''
+    vim.notify("Mouse: DISABLED (Zoom/Select enabled)", "warn")
+  else
+    vim.o.mouse = 'a'
+    vim.notify("Mouse: ENABLED (Neovim features on)", "info")
+  end
+end, { desc = "Toggle Mouse Support" })
 
