@@ -1,5 +1,5 @@
 -- ========================================================================== --
---    iamarman ULTIMATE CONFIG (Compact Templates + Crash-Proof)              --
+--    iamarman ULTIMATE CONFIG (Tokyo Night Edition)                          --
 -- ========================================================================== --
 
 -- 0. SILENCE WARNINGS
@@ -44,8 +44,21 @@ require("lazy").setup({
     end,
   },
 
-  -- === VISUALS ===
-  { "tanvirtin/monokai.nvim", lazy = false, priority = 1000, config = function() require("monokai").setup() end },
+  -- === VISUALS (TOKYO NIGHT) ===
+  {
+    "folke/tokyonight.nvim",
+    lazy = false,
+    priority = 1000,
+    config = function()
+      require("tokyonight").setup({
+        style = "night",      -- Options: storm, night, moon, day
+        transparent = true,   -- Enable glass effect
+        terminal_colors = true,
+      })
+      vim.cmd.colorscheme("tokyonight")
+    end,
+  },
+
   { "stevearc/dressing.nvim", opts = {} },
   { "famiu/bufdelete.nvim" },
   { 
@@ -103,7 +116,7 @@ require("lazy").setup({
 
   -- === AI & EDITOR ===
   { "Exafunction/codeium.vim", event = "BufEnter" },
-  
+   
   -- Treesitter (Safe Version)
   { 
     "nvim-treesitter/nvim-treesitter", 
@@ -115,7 +128,7 @@ require("lazy").setup({
       configs.setup({ ensure_installed = { "cpp", "lua", "c" }, highlight = { enable = true } })
     end
   },
-  
+   
   { "numToStr/Comment.nvim", opts = {} },
 
   -- [FIXED HERE] FORCED COMPACT FORMATTING
@@ -205,6 +218,7 @@ vim.opt.selectmode = 'mouse,key'
 vim.opt.termguicolors = true
 vim.opt.cursorline = true
 vim.opt.updatetime = 300 
+vim.opt.wrap = false
 
 -- 4. KEYBINDINGS
 local function smart_map(modes, key, result, is_operator)
@@ -265,16 +279,6 @@ vim.keymap.set('n', '<leader>m', function()
     vim.notify("Mouse: ENABLED (Neovim features on)", "info")
   end
 end, { desc = "Toggle Mouse Support" })
-
-
--- 3. SETTINGS
-vim.opt.number = true; vim.opt.relativenumber = true; 
-vim.opt.mouse = "a"; 
-vim.opt.clipboard = "unnamedplus"
-vim.opt.splitright = true; vim.opt.splitbelow = true; 
-vim.opt.tabstop = 4; vim.opt.shiftwidth = 4; vim.opt.expandtab = true
-vim.opt.selectmode = 'mouse,key'
-vim.opt.termguicolors = true
-vim.opt.cursorline = true
-vim.opt.updatetime = 300 
-vim.opt.wrap = false  -- <--- ADD THIS LINE HERE
+vim.opt.mouse = ""
+vim.opt.mouse = ""
+vim.opt.mouse = ""
