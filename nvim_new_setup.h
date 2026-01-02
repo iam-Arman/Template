@@ -1,7 +1,7 @@
 rm ~/.config/nvim/init.lua
 cat <<'EOF' > ~/.config/nvim/init.lua
 -- ========================================================================== --
---    iamarman ULTIMATE CONFIG (Tokyo Night + Pro Features + Fixed Comments)  --
+--    iamarman ULTIMATE CONFIG (Abyss Mode + Fixed Dashboard)                 --
 -- ========================================================================== --
 
 -- 0. SILENCE WARNINGS
@@ -21,7 +21,7 @@ vim.g.mapleader = " "
 
 -- 2. PLUGINS
 require("lazy").setup({
-  -- === DASHBOARD (iamarman Edition) ===
+  -- === DASHBOARD (Restored ASCII Art) ===
   {
     "goolord/alpha-nvim",
     event = "VimEnter",
@@ -46,7 +46,7 @@ require("lazy").setup({
     end,
   },
 
-  -- === [NEW] SESSION MANAGER (Restores Tabs & Splits) ===
+  -- === SESSION MANAGER ===
   {
     "rmagatti/auto-session",
     config = function()
@@ -61,7 +61,7 @@ require("lazy").setup({
     end
   },
 
-  -- === [NEW] HARPOON (Fast Navigation) ===
+  -- === HARPOON ===
   {
     "ThePrimeagen/harpoon",
     dependencies = { "nvim-lua/plenary.nvim" },
@@ -77,21 +77,7 @@ require("lazy").setup({
     end
   },
 
-  -- === VISUALS (TOKYO NIGHT) ===
-  {
-    "folke/tokyonight.nvim",
-    lazy = false,
-    priority = 1000,
-    config = function()
-      require("tokyonight").setup({
-        style = "night",      -- Options: storm, night, moon, day
-        transparent = true,   -- Enable glass effect
-        terminal_colors = true,
-      })
-      vim.cmd.colorscheme("tokyonight")
-    end,
-  },
-
+  -- UI Upgrades
   { "stevearc/dressing.nvim", opts = {} },
   { "famiu/bufdelete.nvim" },
   { 
@@ -101,6 +87,10 @@ require("lazy").setup({
         mode = "buffers", separator_style = "slant", always_show_bufferline = true,
         show_buffer_close_icons = true, show_close_icon = true,
         close_command = "Bdelete! %d", right_mouse_command = "Bdelete! %d",
+        highlights = {
+            fill = { bg = "#000c18" },
+            background = { bg = "#000c18", fg = "#223355" },
+        }
       }
     }
   },
@@ -150,7 +140,7 @@ require("lazy").setup({
   -- === AI & EDITOR ===
   { "Exafunction/codeium.vim", event = "BufEnter" },
    
-  -- Treesitter (Safe Version)
+  -- Treesitter
   { 
     "nvim-treesitter/nvim-treesitter", 
     build = ":TSUpdate",
@@ -164,14 +154,13 @@ require("lazy").setup({
    
   { "numToStr/Comment.nvim", opts = {} },
 
-  -- [FIXED HERE] FORCED COMPACT FORMATTING
+  -- FORMATTING
   {
     "stevearc/conform.nvim",
     event = { "BufWritePre" },
     opts = {
       formatters = {
         ["clang-format"] = {
-          -- Forced Google Style with Infinite Column Limit to prevent line splitting
           prepend_args = { 
             "--style={BasedOnStyle: Google, ColumnLimit: 0, AllowShortFunctionsOnASingleLine: All, BracedPadding: true}" 
           },
@@ -222,7 +211,6 @@ require("lazy").setup({
         sources = cmp.config.sources({ { name = 'nvim_lsp' }, { name = 'luasnip' }, { name = 'buffer' } })
       })
 
-      -- [NEW] Command Line Suggestions
       cmp.setup.cmdline(':', {
         mapping = cmp.mapping.preset.cmdline(),
         sources = cmp.config.sources({ { name = 'path' } }, { { name = 'cmdline' } })
@@ -259,9 +247,9 @@ smart_map({'n', 'i', 'v'}, 'a', '<Esc>ggVG'); smart_map({'n', 'i', 'v'}, 's', '<
 smart_map('v', 'c', '"+y'); smart_map('v', 'x', '"+d'); smart_map({'n', 'v'}, 'v', '"+p')
 vim.keymap.set('i', '<D-v>', '<C-r>+', { silent = true }); vim.keymap.set('i', '<M-v>', '<C-r>+', { silent = true })
 
--- [FIXED HERE] Separate Commenting Logic for Cmd+/
-smart_map('n', '/', 'gcc', true)  -- Normal mode: Comment line
-smart_map('v', '/', 'gc', true)   -- Visual mode: Comment selection
+-- Fixed Commenting
+smart_map('n', '/', 'gcc', true)
+smart_map('v', '/', 'gc', true)
 
 vim.keymap.set({'n', 'i'}, 'BS', '<Esc>ddi') 
 vim.keymap.set('v', '<BS>', '"_d'); vim.keymap.set('v', '<Del>', '"_d')
@@ -285,7 +273,7 @@ vim.api.nvim_create_autocmd({ "InsertLeave", "FocusLost" }, {
   callback = function() if vim.bo.modified and vim.fn.getcmdtype() == "" then vim.cmd("silent! w") end end,
 })
 
--- [NEW] ADVANCED TEMPLATE LOADER (Reads skeleton.cpp)
+-- ADVANCED TEMPLATE LOADER
 local group = vim.api.nvim_create_augroup("AutoTemplate", { clear = true })
 vim.api.nvim_create_autocmd("BufNewFile", {
     pattern = "*.cpp",
@@ -305,16 +293,15 @@ vim.api.nvim_create_autocmd("BufNewFile", {
     end
 })
 
--- [LEGACY] Keep your old keybind too just in case
+-- Legacy keybind
 vim.api.nvim_create_autocmd("FileType", { pattern = "cpp", callback = function()
     vim.keymap.set('i', '!cpp', "#include <bits/stdc++.h><CR>using namespace std;<CR><CR>void solve() {<CR><CR>}<CR><CR>int main() {<CR>ios_base::sync_with_stdio(false); cin.tie(NULL);<CR>solve();<CR>return 0;<CR>}<Esc>3ka", { buffer = true })
 end })
 
 vim.diagnostic.config({ virtual_text = true, signs = true, underline = true, update_in_insert = false })
 
--- Fix: Cmd+Delete (and Alt+Delete) removes the whole line
-vim.keymap.set('n', '<D-BS>', 'dd', { silent = true })        -- Normal Mode
-vim.keymap.set('i', '<D-BS>', '<Esc>ddi', { silent = true }) -- Insert Mode
+vim.keymap.set('n', '<D-BS>', 'dd', { silent = true })        
+vim.keymap.set('i', '<D-BS>', '<Esc>ddi', { silent = true }) 
 
 -- MOUSE RESIZE
 vim.keymap.set('n', '<C-ScrollWheelUp>', ':vertical resize +2<CR>', { silent = true })
@@ -326,15 +313,53 @@ vim.keymap.set('n', '<M-ScrollWheelDown>', ':resize -2<CR>', { silent = true })
 vim.keymap.set('n', '<leader>m', function()
   if vim.o.mouse == 'a' then
     vim.o.mouse = ''
-    vim.notify("Mouse: DISABLED (Zoom/Select enabled)", "warn")
+    vim.notify("Mouse: DISABLED", "warn")
   else
     vim.o.mouse = 'a'
-    vim.notify("Mouse: ENABLED (Neovim features on)", "info")
+    vim.notify("Mouse: ENABLED", "info")
   end
 end, { desc = "Toggle Mouse Support" })
 
--- DISABLE MOUSE (As you requested to stop garbage text)
 vim.opt.mouse = ""
 vim.opt.mouse = ""
 vim.opt.mouse = ""
+
+-- 6. APPLY CUSTOM ABYSS THEME (Manual Load)
+-- This runs at the end to overwrite any default theme without downloading anything
+local function load_abyss_theme()
+  local colors = {
+    bg = "#000c18", fg = "#6688cc", caret = "#ddbb88",
+    selection = "#770811", comment = "#223355", string = "#22aa44",
+    keyword = "#225588", type = "#9966b8", func = "#ddbb88",
+    line_highlight = "#082050", param = "#2277ff", number = "#f280d0"
+  }
+  local set_hl = vim.api.nvim_set_hl
+  
+  -- Base Colors
+  set_hl(0, "Normal", { fg = colors.fg, bg = colors.bg })
+  set_hl(0, "NormalFloat", { fg = colors.fg, bg = colors.bg })
+  set_hl(0, "Cursor", { bg = colors.caret })
+  set_hl(0, "CursorLine", { bg = colors.line_highlight })
+  set_hl(0, "Visual", { bg = colors.selection })
+  set_hl(0, "LineNr", { fg = colors.comment })
+  set_hl(0, "CursorLineNr", { fg = colors.func, bold = true })
+  
+  -- Syntax Colors
+  set_hl(0, "Comment", { fg = colors.comment, italic = true })
+  set_hl(0, "String", { fg = colors.string })
+  set_hl(0, "Number", { fg = colors.number })
+  set_hl(0, "Function", { fg = colors.func })
+  set_hl(0, "Keyword", { fg = colors.keyword, bold = true })
+  set_hl(0, "Type", { fg = colors.type, italic = true })
+  set_hl(0, "Statement", { fg = colors.keyword })
+  set_hl(0, "Identifier", { fg = colors.param })
+  set_hl(0, "Operator", { fg = colors.keyword })
+  set_hl(0, "Pmenu", { bg = "#001525", fg = colors.fg })
+  set_hl(0, "PmenuSel", { bg = colors.selection, fg = "#ffffff" })
+  set_hl(0, "StatusLine", { bg = colors.line_highlight, fg = colors.fg })
+  set_hl(0, "WinSeparator", { fg = colors.comment })
+  
+  vim.g.colors_name = "abyss"
+end
+load_abyss_theme()
 EOF
