@@ -363,3 +363,8 @@ local function load_abyss_theme()
 end
 load_abyss_theme()
 EOF
+
+-- Copy full file path to clipboard (for file upload dialogs)
+vim.keymap.set('n', '<leader>cp', ':let @+ = expand("%:p")<CR>', { desc = "Copy$
+
+
